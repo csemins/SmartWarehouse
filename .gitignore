@@ -1,0 +1,16 @@
+target/
+*.class
+*.log
+*.db
+*.db-journal
+data/
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+out/
+.DS_Store
+screenshots-tmp/
+dist/
