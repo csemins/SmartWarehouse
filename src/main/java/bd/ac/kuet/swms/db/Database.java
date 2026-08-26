@@ -36,6 +36,11 @@ public class Database {
 
     public Connection connect() throws SQLException {
         Connection c = DriverManager.getConnection(url);
+        try (Statement st = c.createStatement()) {
+            // sqlite has FKs OFF by default, per connection. lost an hour on this
+            st.execute("PRAGMA foreign_keys = ON");
+            st.execute("PRAGMA busy_timeout = 5000");
+        }
         return c;
     }
 
