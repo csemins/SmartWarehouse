@@ -39,7 +39,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements Reposi
         try (Connection c = db.connect()) {
             return save(c, entity);
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), e);
+            throw new DataAccessException(friendlyMessage(e), e);
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements Reposi
                 return list;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), e);
+            throw new DataAccessException(friendlyMessage(e), e);
         }
     }
 
@@ -93,7 +93,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements Reposi
             bind(ps, params);
             return ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), e);
+            throw new DataAccessException(friendlyMessage(e), e);
         }
     }
 
@@ -104,7 +104,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements Reposi
                 return rs.next() ? rs.getDouble(1) : 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), e);
+            throw new DataAccessException(friendlyMessage(e), e);
         }
     }
 
@@ -133,5 +133,14 @@ public abstract class AbstractRepository<T extends BaseEntity> implements Reposi
     protected static Integer nullableInt(ResultSet rs, String column) throws SQLException {
         int value = rs.getInt(column);
         return rs.wasNull() ? null : value;
+    }
+
+    // raw sqlite errors are unreadable for users
+    private static String friendlyMessage(SQLException e) {
+        String m = String.valueOf(e.getMessage());
+        if (m.contains("UNIQUE")) return "A record with the same value already exists.";
+        if (m.contains("FOREIGN KEY")) return "This record is still used (for example a product that is in the rack or in an order).";
+        if (m.contains("CHECK")) return "A value is not allowed.";
+        return m;
     }
 }
