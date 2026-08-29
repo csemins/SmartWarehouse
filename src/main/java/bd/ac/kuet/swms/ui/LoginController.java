@@ -23,11 +23,15 @@ public class LoginController {
     @FXML
     private void onSignIn() {
         error.setText("");
-        if (AppContext.get().auth.login(username.getText(), password.getText().toCharArray()).isPresent()) {
-            Navigator.get().showMain();
-        } else {
-            error.setText("Wrong username or password.");
-            password.clear();
-        }
+        // hashing takes a moment, don't block the fx thread
+        String user = username.getText();
+        char[] pw = password.getText().toCharArray();
+        FxAsync.run(() -> AppContext.get().auth.login(user, pw).isPresent(), ok -> {
+            if (ok) Navigator.get().showMain();
+            else {
+                error.setText("Wrong username or password.");
+                password.clear();
+            }
+        });
     }
 }
