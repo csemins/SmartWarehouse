@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+    full_name     TEXT    NOT NULL,
+    role          TEXT    NOT NULL CHECK (role IN ('ADMIN','INVENTORY_MANAGER','FINANCE_MANAGER')),
+    salt          TEXT    NOT NULL,
+    password_hash TEXT    NOT NULL,
+    active        INTEGER NOT NULL DEFAULT 1,
+    created_at    TEXT    NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS categories (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT NOT NULL UNIQUE COLLATE NOCASE,
