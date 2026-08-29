@@ -1,10 +1,12 @@
 package bd.ac.kuet.swms;
 
+import bd.ac.kuet.swms.db.Database;
+import bd.ac.kuet.swms.ui.Navigator;
+import bd.ac.kuet.swms.util.AppExecutors;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.nio.file.Path;
 
 public class SmartWarehouseApp extends Application {
 
@@ -13,10 +15,22 @@ public class SmartWarehouseApp extends Application {
     }
 
     @Override
+    public void init() {
+        String folder = getParameters().getNamed().get("data");
+        AppContext context = AppContext.start(folder == null ? Database.dataFolder() : Path.of(folder));
+    }
+
+    @Override
     public void start(Stage stage) {
-        // just checking javafx runs from maven, real screens come later
         stage.setTitle("Smart Warehouse Management System");
-        stage.setScene(new Scene(new StackPane(new Label("Smart Warehouse - work in progress")), 900, 600));
+        stage.setMinWidth(900);
+        stage.setMinHeight(620);
+        Navigator.init(stage).showLogin();
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        AppExecutors.shutdown();
     }
 }

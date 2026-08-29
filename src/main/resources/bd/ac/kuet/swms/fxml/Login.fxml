@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="bd.ac.kuet.swms.ui.LoginController">
+    <VBox fx:id="form" spacing="10" maxWidth="360" maxHeight="-Infinity" styleClass="login-box">
+        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+        <Label text="Smart Warehouse" styleClass="login-title"/>
+        <Label text="Please sign in"/>
+        <Label text="Username"/>
+        <TextField fx:id="username"/>
+        <Label text="Password"/>
+        <PasswordField fx:id="password"/>
+        <Label fx:id="error" styleClass="error-text" wrapText="true"/>
+        <Button fx:id="signIn" text="Sign in" defaultButton="true" onAction="#onSignIn" maxWidth="Infinity"/>
+    </VBox>
+</StackPane>
