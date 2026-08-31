@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="bd.ac.kuet.swms.ui.MainController">
+    <top>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem text="Log out" onAction="#onLogout"/>
+                    <MenuItem text="Exit" onAction="#onExit"/>
+                </Menu>
+            </MenuBar>
+            <HBox styleClass="header" spacing="12">
+                <Label text="Smart Warehouse" styleClass="header-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="userLabel"/>
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <TabPane fx:id="tabs"/>
+    </center>
+    <bottom>
+        <HBox styleClass="status-bar">
+            <Label fx:id="jobStatus" text="Crane idle"/>
+        </HBox>
+    </bottom>
+</BorderPane>
