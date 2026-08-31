@@ -3,6 +3,7 @@ package bd.ac.kuet.swms.ui;
 import bd.ac.kuet.swms.AppContext;
 import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.User;
+import bd.ac.kuet.swms.ui.view.ProductsView;
 import bd.ac.kuet.swms.ui.view.View;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -26,6 +27,7 @@ public class MainController {
     // TODO sidebar instead of tabs later, tabs are fine for now
     private static List<Module> modules() {
         List<Module> list = new ArrayList<>();
+        list.add(new Module(Permission.MANAGE_PRODUCTS, ProductsView::new));
         return list;
     }
 
