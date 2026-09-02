@@ -10,8 +10,10 @@ public class ModbusProbe {
             d.connect();
             System.out.println("connected " + d.describe());
             for (int round = 0; round < 20; round++) {
-                boolean[] in = d.readDiscreteInputs(0, 15);
-                System.out.println(Arrays.toString(in));
+                boolean[] in = d.readDiscreteInputs(0, Sensor.COUNT);
+                StringBuilder sb = new StringBuilder();
+                for (Sensor s : Sensor.values()) if (in[s.address()]) sb.append(s.label()).append(", ");
+                System.out.println(round + ": " + sb);
                 // toggle entry conveyor every second round
                 boolean[] coils = new boolean[10];
                 coils[0] = round % 2 == 0;
