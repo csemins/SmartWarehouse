@@ -109,7 +109,8 @@ public class ModbusTcpDriver implements PlcDriver {
 
     private static boolean[] bits(byte[] data, int count) {
         boolean[] result = new boolean[count];
-        for (int i = 0; i < count; i++) result[i] = ((data[i / 8] >> (i % 8)) & 1) == 1;
+        // data[0] is the byte count, bits start at data[1], LSB first
+        for (int i = 0; i < count; i++) result[i] = ((data[1 + i / 8] >> (i % 8)) & 1) == 1;
         return result;
     }
 
