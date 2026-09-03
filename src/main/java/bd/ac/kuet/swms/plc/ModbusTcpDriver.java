@@ -27,6 +27,7 @@ public class ModbusTcpDriver implements PlcDriver {
         Socket s = new Socket();
         s.connect(new InetSocketAddress(host, port), 2000);
         s.setSoTimeout(2000);
+        s.setTcpNoDelay(true);
         socket = s;
         in = new DataInputStream(s.getInputStream());
         out = new DataOutputStream(s.getOutputStream());
@@ -94,12 +95,18 @@ public class ModbusTcpDriver implements PlcDriver {
             out.write(frame);
             out.flush();
 
-            in.readUnsignedShort();
-            in.readUnsignedShort();
-            int length = in.readUnsignedShort();
-            in.readUnsignedByte();
-            byte[] body = new byte[length - 1];
-            in.readFully(body);
+            byte[] body;
+            int responseTid;
+            do {
+                responseTid = in.readUnsignedShort();
+                in.readUnsignedShort();
+                int length = in.readUnsignedShort();
+                if (length < 2 || length > 256) throw new IOException("Bad Modbus frame length " + length);
+                in.readUnsignedByte();
+                body = new byte[length - 1];
+                in.readFully(body);
+            // skip late replies from an earlier request that timed out
+            } while (responseTid != tid);
 
             int function = body[0] & 0xFF;
             if (function == ((pdu[0] & 0xFF) | 0x80)) throw new ModbusException(pdu[0], body[1] & 0xFF);
