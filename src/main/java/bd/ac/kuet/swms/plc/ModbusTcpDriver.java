@@ -60,11 +60,18 @@ public class ModbusTcpDriver implements PlcDriver {
     }
 
     @Override
+    // fc 15, all coils in one frame. fc 05 per coil made the conveyors flicker
     public void writeCoils(int start, boolean[] values) throws IOException {
-        for (int i = 0; i < values.length; i++) {
-            int address = start + i;
-            request(new byte[]{0x05, hi(address), lo(address), (byte) (values[i] ? 0xFF : 0x00), 0x00});
-        }
+        int bytes = (values.length + 7) / 8;
+        byte[] pdu = new byte[6 + bytes];
+        pdu[0] = 0x0F;
+        pdu[1] = hi(start);
+        pdu[2] = lo(start);
+        pdu[3] = hi(values.length);
+        pdu[4] = lo(values.length);
+        pdu[5] = (byte) bytes;
+        for (int i = 0; i < values.length; i++) if (values[i]) pdu[6 + i / 8] |= (byte) (1 << (i % 8));
+        request(pdu);
     }
 
     @Override
