@@ -5,6 +5,6 @@ public record CraneConfig(Side loadSide, Side unloadSide, Side rackSide, int res
 
     // 55 is the rest position in front of the conveyors
     public static CraneConfig defaults() {
-        return new CraneConfig(Side.RIGHT, Side.LEFT, Side.LEFT, 55, true, 30);
+        return new CraneConfig(Side.LEFT, Side.RIGHT, Side.RIGHT, 55, true, 30);
     }
 }
