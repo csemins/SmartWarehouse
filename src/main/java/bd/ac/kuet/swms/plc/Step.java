@@ -30,7 +30,13 @@ public abstract class Step {
         }
 
         @Override public boolean isDone(IoImage in, long elapsedMs) {
-            return elapsedMs > 500 && !in.craneMoving();
+            if (in.craneMoving()) {
+                stillSince = -1;
+                return false;
+            }
+            // moving flag flickers at the start of a move, wait until still for 800ms
+            if (stillSince < 0) stillSince = elapsedMs;
+            return elapsedMs > 500 && elapsedMs - stillSince >= 800;
         }
     }
 
