@@ -147,13 +147,14 @@ public class FactoryIoController {
         if (!d.isConnected()) {
             if (state != ControllerState.DISCONNECTED) log("Connection to Factory IO lost");
             state = ControllerState.DISCONNECTED;
-            if (lastConnectTry == 0) {
+            // retry once a second, factory io is often restarted while the app runs
+            if (System.currentTimeMillis() - lastConnectTry > 1000) {
                 lastConnectTry = System.currentTimeMillis();
                 try {
                     d.connect();
                     written = null;
                     writtenTarget = -1;
-                    state = ControllerState.IDLE;
+                    state = autoMode ? ControllerState.RUNNING : current != null ? ControllerState.PAUSED : ControllerState.IDLE;
                     stepStarted = false;
                     log("Connected to Factory IO " + d.describe());
                 } catch (Exception e) {
