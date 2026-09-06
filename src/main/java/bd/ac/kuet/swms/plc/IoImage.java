@@ -4,7 +4,7 @@ public record IoImage(boolean[] inputs, boolean conveyorSensorsInverted) {
 
     public boolean get(Sensor s) { return inputs[s.address()]; }
 
-    public boolean box(Sensor s) { return get(s); }
+    public boolean box(Sensor s) { return get(s) != conveyorSensorsInverted; }
 
     public boolean craneMoving() { return get(Sensor.MOVING_X) || get(Sensor.MOVING_Z); }
 
