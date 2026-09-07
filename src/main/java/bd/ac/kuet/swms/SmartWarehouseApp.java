@@ -31,6 +31,7 @@ public class SmartWarehouseApp extends Application {
 
     @Override
     public void stop() {
+        AppContext.get().warehouse.disconnect();
         AppExecutors.shutdown();
     }
 }

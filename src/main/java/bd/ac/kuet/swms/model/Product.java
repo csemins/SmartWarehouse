@@ -7,14 +7,17 @@ public class Product extends BaseEntity {
     private String categoryName;
     private double costPrice;
     private double unitPrice;
+    private int unitsPerBox = 1;
     private int reorderLevel;
     private int quantity;
+    private int boxes;
 
     @Override
     public void validate() throws ValidationException {
         require(hasText(sku), "SKU / barcode is required");
         require(hasText(name), "Name is required");
         require(costPrice >= 0 && unitPrice >= 0, "Prices cannot be negative");
+        require(unitsPerBox >= 1, "Units per box must be at least 1");
         require(reorderLevel >= 0, "Reorder level cannot be negative");
     }
 
@@ -37,8 +40,12 @@ public class Product extends BaseEntity {
     public void setCostPrice(double costPrice) { this.costPrice = costPrice; }
     public double getUnitPrice() { return unitPrice; }
     public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
+    public int getUnitsPerBox() { return unitsPerBox; }
+    public void setUnitsPerBox(int unitsPerBox) { this.unitsPerBox = unitsPerBox; }
     public int getReorderLevel() { return reorderLevel; }
     public void setReorderLevel(int reorderLevel) { this.reorderLevel = reorderLevel; }
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
+    public int getBoxes() { return boxes; }
+    public void setBoxes(int boxes) { this.boxes = boxes; }
 }

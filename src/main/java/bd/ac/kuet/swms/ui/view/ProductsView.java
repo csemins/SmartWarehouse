@@ -20,7 +20,7 @@ public class ProductsView extends TableFormView<Product> {
     private final ComboBox<String> category = new ComboBox<>();
     private final TextField costPrice = new TextField();
     private final TextField unitPrice = new TextField();
-    private final Spinner<Integer> quantity = new Spinner<>(0, 100_000, 0);
+    private final Spinner<Integer> unitsPerBox = new Spinner<>(1, 500, 1);
     private final Spinner<Integer> reorderLevel = new Spinner<>(0, 100_000, 0);
 
     @Override public String title() { return "Products"; }
@@ -32,6 +32,7 @@ public class ProductsView extends TableFormView<Product> {
         addColumn(table, "SKU", Product::getSku, 0.15);
         addColumn(table, "Name", Product::getName, 0.25);
         addColumn(table, "Category", Product::getCategoryName, 0.15);
+        addColumn(table, "Boxes", Product::getBoxes, 0.09);
         addColumn(table, "Units", Product::getQuantity, 0.09);
         addColumn(table, "Cost", p -> Formats.money(p.getCostPrice()), 0.12);
         addColumn(table, "Price", p -> Formats.money(p.getUnitPrice()), 0.12);
@@ -49,13 +50,13 @@ public class ProductsView extends TableFormView<Product> {
     protected void addFormFields() {
         category.setEditable(true);
         reorderLevel.setEditable(true);
-        quantity.setEditable(true);
+        unitsPerBox.setEditable(true);
         addFormRow("SKU / barcode", sku);
         addFormRow("Name", name);
         addFormRow("Category", category);
         addFormRow("Cost price (Tk)", costPrice);
         addFormRow("Selling price (Tk)", unitPrice);
-        addFormRow("Quantity", quantity);
+        addFormRow("Units per box", unitsPerBox);
         addFormRow("Reorder level (units)", reorderLevel);
     }
 
@@ -66,7 +67,7 @@ public class ProductsView extends TableFormView<Product> {
         category.getEditor().setText(p == null || p.getCategoryName() == null ? "" : p.getCategoryName());
         costPrice.setText(p == null ? "" : String.valueOf(p.getCostPrice()));
         unitPrice.setText(p == null ? "" : String.valueOf(p.getUnitPrice()));
-        quantity.getValueFactory().setValue(p == null ? 0 : p.getQuantity());
+        unitsPerBox.getValueFactory().setValue(p == null ? 1 : p.getUnitsPerBox());
         reorderLevel.getValueFactory().setValue(p == null ? 0 : p.getReorderLevel());
     }
 
@@ -77,7 +78,7 @@ public class ProductsView extends TableFormView<Product> {
         p.setName(name.getText().trim());
         p.setCostPrice(parseNumber(costPrice, "Cost price"));
         p.setUnitPrice(parseNumber(unitPrice, "Selling price"));
-        p.setQuantity(quantity.getValue());
+        p.setUnitsPerBox(unitsPerBox.getValue());
         p.setReorderLevel(reorderLevel.getValue());
         return p;
     }

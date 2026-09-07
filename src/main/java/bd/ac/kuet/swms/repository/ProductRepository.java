@@ -18,8 +18,11 @@ public class ProductRepository extends AbstractRepository<Product> {
     @Override protected String table() { return "products"; }
 
     @Override
+    // quantity is not stored, it's the sum of the occupied rack cells
     protected String select() {
-        return "SELECT t.*, c.name AS category_name FROM products t LEFT JOIN categories c ON c.id = t.category_id";
+        return "SELECT t.*, c.name AS category_name, COALESCE(SUM(r.quantity), 0) AS quantity, COUNT(r.id) AS boxes "
+                + "FROM products t LEFT JOIN categories c ON c.id = t.category_id "
+                + "LEFT JOIN rack_cells r ON r.product_id = t.id AND r.status = 'OCCUPIED'";
     }
 
     @Override
@@ -46,22 +49,24 @@ public class ProductRepository extends AbstractRepository<Product> {
         p.setCategoryName(rs.getString("category_name"));
         p.setCostPrice(rs.getDouble("cost_price"));
         p.setUnitPrice(rs.getDouble("unit_price"));
+        p.setUnitsPerBox(rs.getInt("units_per_box"));
         p.setReorderLevel(rs.getInt("reorder_level"));
         p.setQuantity(rs.getInt("quantity"));
+        p.setBoxes(rs.getInt("boxes"));
         p.setCreatedAt(dateTime(rs, "created_at"));
         return p;
     }
 
     @Override
     protected PreparedStatement insert(Connection c, Product p) throws SQLException {
-        return prepare(c, "INSERT INTO products(sku, name, category_id, cost_price, unit_price, quantity, reorder_level, created_at) VALUES (?,?,?,?,?,?,?,?)",
-                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getQuantity(), p.getReorderLevel(), p.getCreatedAt());
+        return prepare(c, "INSERT INTO products(sku, name, category_id, cost_price, unit_price, units_per_box, reorder_level, created_at) VALUES (?,?,?,?,?,?,?,?)",
+                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getCreatedAt());
     }
 
     @Override
     protected PreparedStatement update(Connection c, Product p) throws SQLException {
-        return prepare(c, "UPDATE products SET sku=?, name=?, category_id=?, cost_price=?, unit_price=?, quantity=?, reorder_level=? WHERE id=?",
-                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getQuantity(), p.getReorderLevel(), p.getId());
+        return prepare(c, "UPDATE products SET sku=?, name=?, category_id=?, cost_price=?, unit_price=?, units_per_box=?, reorder_level=? WHERE id=?",
+                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getId());
     }
 
 }
