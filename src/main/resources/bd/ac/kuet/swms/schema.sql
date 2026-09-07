@@ -36,7 +36,18 @@ CREATE TABLE IF NOT EXISTS rack_cells (
     updated_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS stock_movements (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    cell_id    INTEGER NOT NULL REFERENCES rack_cells(id),
+    type       TEXT    NOT NULL CHECK (type IN ('IN','OUT')),
+    quantity   INTEGER NOT NULL CHECK (quantity > 0),
+    username   TEXT,
+    created_at TEXT    NOT NULL
+);
+
 INSERT OR IGNORE INTO rack_cells (id, status, quantity)
     WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM n WHERE x < 54)
     SELECT x, 'EMPTY', 0 FROM n;
 
+CREATE INDEX IF NOT EXISTS idx_movements_product ON stock_movements(product_id);
