@@ -37,6 +37,7 @@ public class ProductService {
 
     public void delete(Product product) {
         session.require(Permission.MANAGE_PRODUCTS);
+        if (product.getBoxes() > 0) throw new BusinessException("Retrieve the boxes of this product from the rack first");
         products.delete(product.getId());
     }
 
