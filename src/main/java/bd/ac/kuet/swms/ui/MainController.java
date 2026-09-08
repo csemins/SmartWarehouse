@@ -3,8 +3,11 @@ package bd.ac.kuet.swms.ui;
 import bd.ac.kuet.swms.AppContext;
 import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.User;
+import bd.ac.kuet.swms.plc.Snapshot;
 import bd.ac.kuet.swms.ui.view.ProductsView;
+import bd.ac.kuet.swms.ui.view.SettingsView;
 import bd.ac.kuet.swms.ui.view.View;
+import bd.ac.kuet.swms.ui.view.WarehouseView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -13,6 +16,7 @@ import javafx.scene.control.TabPane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class MainController {
@@ -21,13 +25,16 @@ public class MainController {
 
     private final AppContext ctx = AppContext.get();
     private final List<View> views = new ArrayList<>();
+    private final Consumer<Snapshot> plcListener = s -> Platform.runLater(() -> showCraneJob(s));
 
     private record Module(Permission permission, Supplier<View> create) { }
 
     // TODO sidebar instead of tabs later, tabs are fine for now
     private static List<Module> modules() {
         List<Module> list = new ArrayList<>();
+        list.add(new Module(Permission.OPERATE_WAREHOUSE, WarehouseView::new));
         list.add(new Module(Permission.MANAGE_PRODUCTS, ProductsView::new));
+        list.add(new Module(Permission.CONFIGURE_SYSTEM, SettingsView::new));
         return list;
     }
 
@@ -45,6 +52,11 @@ public class MainController {
             views.add(view);
         }
         if (!views.isEmpty()) views.get(0).refresh();
+        ctx.warehouse.controller().subscribe(plcListener);
+    }
+
+    private void showCraneJob(Snapshot s) {
+        jobStatus.setText(s.currentJob() == null ? "Crane idle" : "Crane: " + s.currentJob() + "  -  " + s.currentJob().progress());
     }
 
     @FXML
@@ -61,6 +73,7 @@ public class MainController {
     }
 
     private void close() {
+        ctx.warehouse.controller().unsubscribe(plcListener);
         views.forEach(View::dispose);
     }
 }
