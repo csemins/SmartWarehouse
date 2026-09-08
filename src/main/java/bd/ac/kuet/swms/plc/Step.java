@@ -71,7 +71,12 @@ public abstract class Step {
         private long stillSince = -1;
 
         @Override public boolean isDone(IoImage in, long elapsedMs) {
-            return elapsedMs > 1200;
+            if (in.get(Sensor.MOVING_Z)) {
+                stillSince = -1;
+                return false;
+            }
+            if (stillSince < 0) stillSince = elapsedMs;
+            return elapsedMs > 800 && elapsedMs - stillSince >= 300;
         }
     }
 
