@@ -40,7 +40,7 @@ public class WarehouseJob {
                 new Step.Forks(cfg.loadSide()),
                 new Step.Lift(true),
                 new Step.Forks(Side.MIDDLE),
-                new Step.Lift(false),
+                // keep the lift up while leaving the rest position, otherwise the pallet drops
                 new Step.MoveCrane(cell),
                 new Step.Forks(cfg.rackSide()),
                 new Step.Lift(false),
