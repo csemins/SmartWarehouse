@@ -188,6 +188,13 @@ public class FactoryIoController {
         boolean start = in.get(Sensor.START);
         boolean reset = in.get(Sensor.RESET);
 
+        if (!emergencyOk && state != ControllerState.FAULT) {
+            state = ControllerState.FAULT;
+            autoMode = false;
+            out.stopMotion();
+            out.setTargetPosition(0);
+            log("EMERGENCY STOP");
+        }
         if (!stopOk && state == ControllerState.RUNNING) doStop();
         if (start && !prevStart) doStart();
         if (reset && !prevReset) doReset();
