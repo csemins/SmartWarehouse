@@ -4,6 +4,7 @@ import bd.ac.kuet.swms.AppContext;
 import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.User;
 import bd.ac.kuet.swms.plc.Snapshot;
+import bd.ac.kuet.swms.ui.view.OrdersView;
 import bd.ac.kuet.swms.ui.view.ProductsView;
 import bd.ac.kuet.swms.ui.view.SettingsView;
 import bd.ac.kuet.swms.ui.view.View;
@@ -33,6 +34,7 @@ public class MainController {
     private static List<Module> modules() {
         List<Module> list = new ArrayList<>();
         list.add(new Module(Permission.OPERATE_WAREHOUSE, WarehouseView::new));
+        list.add(new Module(Permission.MANAGE_ORDERS, OrdersView::new));
         list.add(new Module(Permission.MANAGE_PRODUCTS, ProductsView::new));
         list.add(new Module(Permission.CONFIGURE_SYSTEM, SettingsView::new));
         return list;
