@@ -26,6 +26,7 @@ public class WarehouseService implements JobListener {
     private final RackCellRepository cells;
     private final ProductRepository products;
     private final StockMovementRepository movements;
+    private final SalesOrderService orders;
     private final Session session;
     private final Path settingsFile;
     private final FactoryIoController controller;
@@ -35,11 +36,12 @@ public class WarehouseService implements JobListener {
     private AppSettings settings;
 
     public WarehouseService(Database db, RackCellRepository cells, ProductRepository products, StockMovementRepository movements,
-                            Session session, Path settingsFile) {
+                            SalesOrderService orders, Session session, Path settingsFile) {
         this.db = db;
         this.cells = cells;
         this.products = products;
         this.movements = movements;
+        this.orders = orders;
         this.session = session;
         this.settingsFile = settingsFile;
         this.settings = AppSettings.load(settingsFile);
@@ -141,6 +143,7 @@ public class WarehouseService implements JobListener {
         movements.save(new StockMovement(cell.getProductId(), cell.getId(), job.getOrderId(), StockMovement.Type.OUT, cell.getQuantity(), job.getUsername()));
         cell.empty();
         cells.save(cell);
+        if (job.getOrderId() != null) orders.recordShippedBox(job.getOrderId());
         announce("Box shipped from cell " + job.getCell() + (job.getOrderId() == null ? "" : " for order #" + job.getOrderId()));
     }
 

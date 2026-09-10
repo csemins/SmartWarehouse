@@ -36,10 +36,22 @@ CREATE TABLE IF NOT EXISTS rack_cells (
     updated_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS sales_orders (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer      TEXT    NOT NULL,
+    product_id    INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    boxes         INTEGER NOT NULL CHECK (boxes > 0),
+    boxes_shipped INTEGER NOT NULL DEFAULT 0,
+    status        TEXT    NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN','DONE','CANCELLED')),
+    username      TEXT,
+    created_at    TEXT    NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS stock_movements (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     cell_id    INTEGER NOT NULL REFERENCES rack_cells(id),
+    order_id   INTEGER REFERENCES sales_orders(id) ON DELETE SET NULL,
     type       TEXT    NOT NULL CHECK (type IN ('IN','OUT')),
     quantity   INTEGER NOT NULL CHECK (quantity > 0),
     username   TEXT,
