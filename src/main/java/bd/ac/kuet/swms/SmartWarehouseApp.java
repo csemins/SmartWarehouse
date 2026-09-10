@@ -18,6 +18,7 @@ public class SmartWarehouseApp extends Application {
     public void init() {
         String folder = getParameters().getNamed().get("data");
         AppContext context = AppContext.start(folder == null ? Database.dataFolder() : Path.of(folder));
+        context.automation.start();
     }
 
     @Override
@@ -31,6 +32,7 @@ public class SmartWarehouseApp extends Application {
 
     @Override
     public void stop() {
+        AppContext.get().automation.stop();
         AppContext.get().warehouse.disconnect();
         AppExecutors.shutdown();
     }

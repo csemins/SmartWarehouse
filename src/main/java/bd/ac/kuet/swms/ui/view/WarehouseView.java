@@ -9,6 +9,7 @@ import bd.ac.kuet.swms.ui.FxAsync;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -32,6 +33,7 @@ public class WarehouseView extends View {
     private final Label message = new Label();
     private final Label jobLabel = new Label("No job running");
     private final ComboBox<Product> storeProduct = new ComboBox<>();
+    private final CheckBox autoStore = new CheckBox("Store every arriving box automatically");
     private final ComboBox<Product> shipProduct = new ComboBox<>();
     private final ListView<String> eventLog = new ListView<>();
     private final Consumer<Snapshot> plcListener = s -> Platform.runLater(() -> showSnapshot(s));
@@ -66,7 +68,10 @@ public class WarehouseView extends View {
         Button store = new Button("Store box");
         store.disableProperty().bind(storeProduct.valueProperty().isNull());
         store.setOnAction(e -> runJobRequest(() -> ctx.warehouse.requestStore(storeProduct.getValue(), null)));
-        VBox storeCard = card("Store incoming box", storeProduct, store);
+        autoStore.disableProperty().bind(storeProduct.valueProperty().isNull());
+        autoStore.selectedProperty().addListener((o, old, on) -> updateAutoStore());
+        storeProduct.valueProperty().addListener((o, old, p) -> updateAutoStore());
+        VBox storeCard = card("Store incoming box", storeProduct, store, autoStore);
 
         shipProduct.setPromptText("Product to ship");
         Button ship = new Button("Ship oldest box");
@@ -82,6 +87,10 @@ public class WarehouseView extends View {
         plc.subscribe(plcListener);
         ctx.warehouse.onChange(changeListener);
         return layout;
+    }
+
+    private void updateAutoStore() {
+        ctx.automation.setAutoStoreProduct(autoStore.isSelected() ? storeProduct.getValue() : null);
     }
 
     private void runJobRequest(Callable<WarehouseJob> request) {

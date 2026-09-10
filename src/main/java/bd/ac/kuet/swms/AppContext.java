@@ -11,6 +11,7 @@ import bd.ac.kuet.swms.service.AuthService;
 import bd.ac.kuet.swms.service.ProductService;
 import bd.ac.kuet.swms.service.SalesOrderService;
 import bd.ac.kuet.swms.service.Session;
+import bd.ac.kuet.swms.service.WarehouseAutomation;
 import bd.ac.kuet.swms.service.WarehouseService;
 
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ public final class AppContext {
     public final ProductService products;
     public final SalesOrderService orders;
     public final WarehouseService warehouse;
+    public final WarehouseAutomation automation;
 
     private AppContext(Path dataFolder) {
         database = new Database(dataFolder.resolve("warehouse.db"));
@@ -35,6 +37,7 @@ public final class AppContext {
         orders = new SalesOrderService(new SalesOrderRepository(database), session);
         warehouse = new WarehouseService(database, new RackCellRepository(database), productRepository,
                 new StockMovementRepository(database), orders, session, dataFolder.resolve("settings.json"));
+        automation = new WarehouseAutomation(warehouse, orders, session);
 
     }
 
