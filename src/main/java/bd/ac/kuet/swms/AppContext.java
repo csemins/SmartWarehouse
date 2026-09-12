@@ -6,8 +6,10 @@ import bd.ac.kuet.swms.repository.ProductRepository;
 import bd.ac.kuet.swms.repository.RackCellRepository;
 import bd.ac.kuet.swms.repository.SalesOrderRepository;
 import bd.ac.kuet.swms.repository.StockMovementRepository;
+import bd.ac.kuet.swms.repository.TransactionRepository;
 import bd.ac.kuet.swms.repository.UserRepository;
 import bd.ac.kuet.swms.service.AuthService;
+import bd.ac.kuet.swms.service.FinanceService;
 import bd.ac.kuet.swms.service.ProductService;
 import bd.ac.kuet.swms.service.SalesOrderService;
 import bd.ac.kuet.swms.service.Session;
@@ -26,18 +28,21 @@ public final class AppContext {
     public final SalesOrderService orders;
     public final WarehouseService warehouse;
     public final WarehouseAutomation automation;
+    public final FinanceService finance;
 
     private AppContext(Path dataFolder) {
         database = new Database(dataFolder.resolve("warehouse.db"));
         ProductRepository productRepository = new ProductRepository(database);
+        TransactionRepository transactionRepository = new TransactionRepository(database);
 
         auth = new AuthService(new UserRepository(database), session);
         auth.createDefaultUsersIfNone();
         products = new ProductService(productRepository, new CategoryRepository(database), session);
         orders = new SalesOrderService(new SalesOrderRepository(database), session);
         warehouse = new WarehouseService(database, new RackCellRepository(database), productRepository,
-                new StockMovementRepository(database), orders, session, dataFolder.resolve("settings.json"));
+                new StockMovementRepository(database), transactionRepository, orders, session, dataFolder.resolve("settings.json"));
         automation = new WarehouseAutomation(warehouse, orders, session);
+        finance = new FinanceService(transactionRepository, productRepository, session);
 
     }
 

@@ -1,6 +1,7 @@
 package bd.ac.kuet.swms.service;
 
 import bd.ac.kuet.swms.db.Database;
+import bd.ac.kuet.swms.model.FinancialTransaction;
 import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.Product;
 import bd.ac.kuet.swms.model.RackCell;
@@ -12,6 +13,7 @@ import bd.ac.kuet.swms.plc.WarehouseJob;
 import bd.ac.kuet.swms.repository.ProductRepository;
 import bd.ac.kuet.swms.repository.RackCellRepository;
 import bd.ac.kuet.swms.repository.StockMovementRepository;
+import bd.ac.kuet.swms.repository.TransactionRepository;
 import bd.ac.kuet.swms.util.AppExecutors;
 
 import java.nio.file.Path;
@@ -26,6 +28,7 @@ public class WarehouseService implements JobListener {
     private final RackCellRepository cells;
     private final ProductRepository products;
     private final StockMovementRepository movements;
+    private final TransactionRepository transactions;
     private final SalesOrderService orders;
     private final Session session;
     private final Path settingsFile;
@@ -36,11 +39,12 @@ public class WarehouseService implements JobListener {
     private AppSettings settings;
 
     public WarehouseService(Database db, RackCellRepository cells, ProductRepository products, StockMovementRepository movements,
-                            SalesOrderService orders, Session session, Path settingsFile) {
+                            TransactionRepository transactions, SalesOrderService orders, Session session, Path settingsFile) {
         this.db = db;
         this.cells = cells;
         this.products = products;
         this.movements = movements;
+        this.transactions = transactions;
         this.orders = orders;
         this.session = session;
         this.settingsFile = settingsFile;
@@ -130,19 +134,46 @@ public class WarehouseService implements JobListener {
         });
     }
 
+    // movement + expense in one transaction
     void bookStoredBox(WarehouseJob job) {
-        RackCell cell = cells.findById(job.getCell()).orElseThrow();
-        cell.setStatus(RackCell.Status.OCCUPIED);
-        cells.save(cell);
-        movements.save(new StockMovement(cell.getProductId(), cell.getId(), null, StockMovement.Type.IN, cell.getQuantity(), job.getUsername()));
+        db.inTransaction(c -> {
+            RackCell cell = cells.findById(job.getCell()).orElseThrow();
+            Product product = products.findById(cell.getProductId()).orElseThrow();
+            cell.setStatus(RackCell.Status.OCCUPIED);
+            cells.save(c, cell);
+            StockMovement movement = movements.save(c, new StockMovement(product.getId(), cell.getId(), null,
+                    StockMovement.Type.IN, cell.getQuantity(), job.getUsername()));
+            if (product.getCostPrice() > 0) {
+                FinancialTransaction expense = new FinancialTransaction(FinancialTransaction.Type.EXPENSE, "Purchase",
+                        product.getCostPrice() * cell.getQuantity(), "Stored " + cell.getQuantity() + " x " + product.getName() + " in cell " + cell.getId());
+                expense.setMovementId(movement.getId());
+                expense.setUsername(job.getUsername());
+                transactions.save(c, expense);
+            }
+            return movement;
+        });
         announce("Box stored in cell " + job.getCell() + ": " + job.getLabel());
     }
 
     void bookShippedBox(WarehouseJob job) {
-        RackCell cell = cells.findById(job.getCell()).orElseThrow();
-        movements.save(new StockMovement(cell.getProductId(), cell.getId(), job.getOrderId(), StockMovement.Type.OUT, cell.getQuantity(), job.getUsername()));
-        cell.empty();
-        cells.save(cell);
+        db.inTransaction(c -> {
+            RackCell cell = cells.findById(job.getCell()).orElseThrow();
+            Product product = products.findById(cell.getProductId()).orElseThrow();
+            int units = cell.getQuantity();
+            StockMovement movement = movements.save(c, new StockMovement(product.getId(), cell.getId(), job.getOrderId(),
+                    StockMovement.Type.OUT, units, job.getUsername()));
+            if (product.getUnitPrice() > 0) {
+                String reason = job.getOrderId() == null ? "Dispatched" : "Order #" + job.getOrderId() + ":";
+                FinancialTransaction income = new FinancialTransaction(FinancialTransaction.Type.INCOME, "Sales",
+                        product.getUnitPrice() * units, reason + " " + units + " x " + product.getName());
+                income.setMovementId(movement.getId());
+                income.setUsername(job.getUsername());
+                transactions.save(c, income);
+            }
+            cell.empty();
+            cells.save(c, cell);
+            return movement;
+        });
         if (job.getOrderId() != null) orders.recordShippedBox(job.getOrderId());
         announce("Box shipped from cell " + job.getCell() + (job.getOrderId() == null ? "" : " for order #" + job.getOrderId()));
     }

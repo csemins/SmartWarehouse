@@ -44,6 +44,23 @@ public class Database {
         return c;
     }
 
+    // used for booking stock + money together, either both or nothing
+    public <R> R inTransaction(SqlWork<R> work) {
+        try (Connection c = connect()) {
+            c.setAutoCommit(false);
+            try {
+                R result = work.run(c);
+                c.commit();
+                return result;
+            } catch (SQLException | RuntimeException e) {
+                c.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
     public String getUrl() { return url; }
 
     private void createSchema() {
