@@ -58,8 +58,22 @@ CREATE TABLE IF NOT EXISTS stock_movements (
     created_at TEXT    NOT NULL
 );
 
+-- movement_id links automatic bookings to the box that caused them
+CREATE TABLE IF NOT EXISTS transactions (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    type        TEXT NOT NULL CHECK (type IN ('INCOME','EXPENSE')),
+    category    TEXT NOT NULL,
+    amount      REAL NOT NULL CHECK (amount > 0),
+    description TEXT,
+    tx_date     TEXT NOT NULL,
+    movement_id INTEGER REFERENCES stock_movements(id) ON DELETE SET NULL,
+    username    TEXT,
+    created_at  TEXT NOT NULL
+);
+
 INSERT OR IGNORE INTO rack_cells (id, status, quantity)
     WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM n WHERE x < 54)
     SELECT x, 'EMPTY', 0 FROM n;
 
 CREATE INDEX IF NOT EXISTS idx_movements_product ON stock_movements(product_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(tx_date);
