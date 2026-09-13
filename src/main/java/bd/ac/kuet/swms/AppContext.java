@@ -1,6 +1,8 @@
 package bd.ac.kuet.swms;
 
 import bd.ac.kuet.swms.db.Database;
+import bd.ac.kuet.swms.net.ExchangeRateService;
+import bd.ac.kuet.swms.net.HttpJsonClient;
 import bd.ac.kuet.swms.repository.CategoryRepository;
 import bd.ac.kuet.swms.repository.ProductRepository;
 import bd.ac.kuet.swms.repository.RackCellRepository;
@@ -29,6 +31,7 @@ public final class AppContext {
     public final WarehouseService warehouse;
     public final WarehouseAutomation automation;
     public final FinanceService finance;
+    public final ExchangeRateService exchangeRates;
 
     private AppContext(Path dataFolder) {
         database = new Database(dataFolder.resolve("warehouse.db"));
@@ -44,6 +47,8 @@ public final class AppContext {
         automation = new WarehouseAutomation(warehouse, orders, session);
         finance = new FinanceService(transactionRepository, productRepository, session);
 
+        HttpJsonClient http = new HttpJsonClient();
+        exchangeRates = new ExchangeRateService(http);
     }
 
     public static AppContext start(Path dataFolder) {

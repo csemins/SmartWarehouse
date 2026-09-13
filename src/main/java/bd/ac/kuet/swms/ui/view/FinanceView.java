@@ -1,13 +1,17 @@
 package bd.ac.kuet.swms.ui.view;
 
+import bd.ac.kuet.swms.net.ExchangeRateService;
 import bd.ac.kuet.swms.service.FinanceService;
 import bd.ac.kuet.swms.ui.FxAsync;
 import bd.ac.kuet.swms.util.Formats;
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -25,6 +29,10 @@ public class FinanceView extends View {
     private final Label profit = new Label();
     private final Label stockValue = new Label();
     private final BarChart<String, Number> monthlyChart = new BarChart<>(new CategoryAxis(), new NumberAxis());
+    private final ComboBox<String> currency = new ComboBox<>(FXCollections.observableArrayList("USD", "EUR", "GBP", "INR", "CNY", "JPY"));
+    private final Label rateInfo = new Label("Exchange rates are loaded from open.er-api.com");
+    private final Label converted = new Label();
+    private ExchangeRateService.Rates rates;
     private FinanceService.Summary summary;
 
     @Override public String title() { return "Finance"; }
@@ -35,10 +43,33 @@ public class FinanceView extends View {
         monthlyChart.setTitle("Income and expenses per month");
         monthlyChart.setAnimated(false);
         VBox overview = new VBox(12, stats, monthlyChart);
+        currency.setValue("USD");
+        currency.setEditable(true);
+        currency.valueProperty().addListener((o, old, value) -> showConverted());
+        Button reload = new Button("Reload rates");
+        reload.setOnAction(e -> loadExchangeRates());
+        overview.getChildren().add(card("Values in another currency", new HBox(8, new Label("Currency"), currency, reload), rateInfo, converted));
+        loadExchangeRates();
         TabPane inner = new TabPane(new Tab("Overview", scrolling(overview)), new Tab("Transactions", transactions.root()));
         inner.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         inner.getSelectionModel().selectedIndexProperty().addListener((o, old, index) -> refresh());
         return inner;
+    }
+
+    private void loadExchangeRates() {
+        FxAsync.run(() -> ctx.exchangeRates.fetch("BDT"), loaded -> {
+            rates = loaded;
+            rateInfo.setText("Rates for 1 BDT, updated " + loaded.updated());
+            showConverted();
+        }, e -> rateInfo.setText("Could not load exchange rates: " + e.getMessage()));
+    }
+
+    private void showConverted() {
+        if (summary == null || rates == null) return;
+        String code = currency.getValue() == null ? "USD" : currency.getValue().trim().toUpperCase();
+        if (!rates.rates().containsKey(code)) { converted.setText("Unknown currency " + code); return; }
+        converted.setText("Profit: " + Formats.money(rates.convert(summary.profit(), code), code)
+                + "    Stock value: " + Formats.money(rates.convert(summary.stockValue(), code), code));
     }
 
     @Override
@@ -60,6 +91,7 @@ public class FinanceView extends View {
                 expenseSeries.getData().add(new XYChart.Data<>(month.toString(), totals[1]));
             });
             monthlyChart.getData().setAll(List.of(incomeSeries, expenseSeries));
+            showConverted();
         });
     }
 }
