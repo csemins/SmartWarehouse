@@ -5,6 +5,7 @@ import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.User;
 import bd.ac.kuet.swms.plc.Snapshot;
 import bd.ac.kuet.swms.ui.view.FinanceView;
+import bd.ac.kuet.swms.ui.view.MovementsView;
 import bd.ac.kuet.swms.ui.view.OrdersView;
 import bd.ac.kuet.swms.ui.view.ProductsView;
 import bd.ac.kuet.swms.ui.view.SettingsView;
@@ -37,6 +38,7 @@ public class MainController {
         list.add(new Module(Permission.OPERATE_WAREHOUSE, WarehouseView::new));
         list.add(new Module(Permission.MANAGE_ORDERS, OrdersView::new));
         list.add(new Module(Permission.MANAGE_PRODUCTS, ProductsView::new));
+        list.add(new Module(Permission.VIEW_MOVEMENTS, MovementsView::new));
         list.add(new Module(Permission.MANAGE_FINANCE, FinanceView::new));
         list.add(new Module(Permission.CONFIGURE_SYSTEM, SettingsView::new));
         return list;
