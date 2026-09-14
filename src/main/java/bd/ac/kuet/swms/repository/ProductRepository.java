@@ -51,6 +51,7 @@ public class ProductRepository extends AbstractRepository<Product> {
         p.setUnitPrice(rs.getDouble("unit_price"));
         p.setUnitsPerBox(rs.getInt("units_per_box"));
         p.setReorderLevel(rs.getInt("reorder_level"));
+        p.setImageUrl(rs.getString("image_url"));
         p.setQuantity(rs.getInt("quantity"));
         p.setBoxes(rs.getInt("boxes"));
         p.setCreatedAt(dateTime(rs, "created_at"));
@@ -59,14 +60,14 @@ public class ProductRepository extends AbstractRepository<Product> {
 
     @Override
     protected PreparedStatement insert(Connection c, Product p) throws SQLException {
-        return prepare(c, "INSERT INTO products(sku, name, category_id, cost_price, unit_price, units_per_box, reorder_level, created_at) VALUES (?,?,?,?,?,?,?,?)",
-                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getCreatedAt());
+        return prepare(c, "INSERT INTO products(sku, name, category_id, cost_price, unit_price, units_per_box, reorder_level, image_url, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getImageUrl(), p.getCreatedAt());
     }
 
     @Override
     protected PreparedStatement update(Connection c, Product p) throws SQLException {
-        return prepare(c, "UPDATE products SET sku=?, name=?, category_id=?, cost_price=?, unit_price=?, units_per_box=?, reorder_level=? WHERE id=?",
-                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getId());
+        return prepare(c, "UPDATE products SET sku=?, name=?, category_id=?, cost_price=?, unit_price=?, units_per_box=?, reorder_level=?, image_url=? WHERE id=?",
+                p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getImageUrl(), p.getId());
     }
 
 }
