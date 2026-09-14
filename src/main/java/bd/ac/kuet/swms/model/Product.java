@@ -9,6 +9,7 @@ public class Product extends BaseEntity {
     private double unitPrice;
     private int unitsPerBox = 1;
     private int reorderLevel;
+    private String imageUrl;
     private int quantity;
     private int boxes;
 
@@ -42,6 +43,8 @@ public class Product extends BaseEntity {
     public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
     public int getUnitsPerBox() { return unitsPerBox; }
     public void setUnitsPerBox(int unitsPerBox) { this.unitsPerBox = unitsPerBox; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public int getReorderLevel() { return reorderLevel; }
     public void setReorderLevel(int reorderLevel) { this.reorderLevel = reorderLevel; }
     public int getQuantity() { return quantity; }

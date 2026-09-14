@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS products (
     unit_price    REAL    NOT NULL DEFAULT 0 CHECK (unit_price >= 0),
     units_per_box INTEGER NOT NULL DEFAULT 1 CHECK (units_per_box >= 1),
     reorder_level INTEGER NOT NULL DEFAULT 0,
+    image_url     TEXT,
     created_at    TEXT    NOT NULL
 );
 

@@ -12,6 +12,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
@@ -25,6 +27,8 @@ public class ProductsView extends TableFormView<Product> {
     private final TextField unitPrice = new TextField();
     private final Spinner<Integer> unitsPerBox = new Spinner<>(1, 500, 1);
     private final Spinner<Integer> reorderLevel = new Spinner<>(0, 100_000, 0);
+    private final TextField imageUrl = new TextField();
+    private final ImageView photo = new ImageView();
 
     @Override public String title() { return "Products"; }
 
@@ -67,6 +71,12 @@ public class ProductsView extends TableFormView<Product> {
         addFormRow("Selling price (Tk)", unitPrice);
         addFormRow("Units per box", unitsPerBox);
         addFormRow("Reorder level (units)", reorderLevel);
+        photo.setFitWidth(80);
+        photo.setFitHeight(80);
+        photo.setPreserveRatio(true);
+        imageUrl.textProperty().addListener((o, old, url) -> photo.setImage(url == null || url.isBlank() ? null : new Image(url, 160, 160, true, true, true)));
+        addFormRow("Photo URL", imageUrl);
+        addFormRow("", photo);
     }
 
     private void lookUpBarcode() {
@@ -74,6 +84,7 @@ public class ProductsView extends TableFormView<Product> {
         FxAsync.run(() -> ctx.barcodeLookup.lookup(code), result -> result.ifPresentOrElse(info -> {
             name.setText(info.name());
             category.getEditor().setText(info.category());
+            if (info.imageUrl() != null) imageUrl.setText(info.imageUrl());
         }, () -> Dialogs.info("Not found", "Barcode " + code + " was not found.")));
     }
 
@@ -86,6 +97,7 @@ public class ProductsView extends TableFormView<Product> {
         unitPrice.setText(p == null ? "" : String.valueOf(p.getUnitPrice()));
         unitsPerBox.getValueFactory().setValue(p == null ? 1 : p.getUnitsPerBox());
         reorderLevel.getValueFactory().setValue(p == null ? 0 : p.getReorderLevel());
+        imageUrl.setText(p == null || p.getImageUrl() == null ? "" : p.getImageUrl());
     }
 
     @Override
@@ -97,6 +109,7 @@ public class ProductsView extends TableFormView<Product> {
         p.setUnitPrice(parseNumber(unitPrice, "Selling price"));
         p.setUnitsPerBox(unitsPerBox.getValue());
         p.setReorderLevel(reorderLevel.getValue());
+        p.setImageUrl(imageUrl.getText().isBlank() ? null : imageUrl.getText().trim());
         return p;
     }
 
