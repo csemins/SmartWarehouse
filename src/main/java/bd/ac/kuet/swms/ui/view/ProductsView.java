@@ -6,11 +6,14 @@ import bd.ac.kuet.swms.ui.Dialogs;
 import bd.ac.kuet.swms.ui.FxAsync;
 import bd.ac.kuet.swms.util.Formats;
 import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 import java.util.List;
 
@@ -51,13 +54,27 @@ public class ProductsView extends TableFormView<Product> {
         category.setEditable(true);
         reorderLevel.setEditable(true);
         unitsPerBox.setEditable(true);
-        addFormRow("SKU / barcode", sku);
+        sku.setId("sku");
+        Button lookup = new Button("Look up");
+        lookup.disableProperty().bind(sku.textProperty().isEmpty());
+        lookup.setOnAction(e -> lookUpBarcode());
+        HBox skuRow = new HBox(6, sku, lookup);
+        HBox.setHgrow(sku, Priority.ALWAYS);
+        addFormRow("SKU / barcode", skuRow);
         addFormRow("Name", name);
         addFormRow("Category", category);
         addFormRow("Cost price (Tk)", costPrice);
         addFormRow("Selling price (Tk)", unitPrice);
         addFormRow("Units per box", unitsPerBox);
         addFormRow("Reorder level (units)", reorderLevel);
+    }
+
+    private void lookUpBarcode() {
+        String code = sku.getText().trim();
+        FxAsync.run(() -> ctx.barcodeLookup.lookup(code), result -> result.ifPresentOrElse(info -> {
+            name.setText(info.name());
+            category.getEditor().setText(info.category());
+        }, () -> Dialogs.info("Not found", "Barcode " + code + " was not found.")));
     }
 
     @Override
