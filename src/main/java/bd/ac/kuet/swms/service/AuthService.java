@@ -6,6 +6,8 @@ import bd.ac.kuet.swms.model.UserFactory;
 import bd.ac.kuet.swms.repository.UserRepository;
 import bd.ac.kuet.swms.util.PasswordHasher;
 
+import bd.ac.kuet.swms.model.AuditEntry;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -13,7 +15,10 @@ public class AuthService {
     private final UserRepository users;
     private final Session session;
 
-    public AuthService(UserRepository users, Session session) {
+    private final AuditService audit;
+
+    public AuthService(UserRepository users, Session session, AuditService audit) {
+        this.audit = audit;
         this.users = users;
         this.session = session;
     }
@@ -33,6 +38,7 @@ public class AuthService {
                     .filter(u -> PasswordHasher.matches(password, u.getSalt(), u.getPasswordHash()));
             user.ifPresent(u -> {
                 session.setUser(u);
+                audit.record(AuditEntry.Category.SECURITY, "Signed in");
             });
             return user;
         } finally {
@@ -42,6 +48,7 @@ public class AuthService {
     }
 
     public void logout() {
+        if (session.user() != null) audit.record(AuditEntry.Category.SECURITY, "Signed out");
         session.setUser(null);
     }
 

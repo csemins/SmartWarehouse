@@ -4,6 +4,7 @@ import bd.ac.kuet.swms.AppContext;
 import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.User;
 import bd.ac.kuet.swms.plc.Snapshot;
+import bd.ac.kuet.swms.ui.view.ActivityView;
 import bd.ac.kuet.swms.ui.view.FinanceView;
 import bd.ac.kuet.swms.ui.view.MovementsView;
 import bd.ac.kuet.swms.ui.view.OrdersView;
@@ -40,6 +41,7 @@ public class MainController {
         list.add(new Module(Permission.MANAGE_PRODUCTS, ProductsView::new));
         list.add(new Module(Permission.VIEW_MOVEMENTS, MovementsView::new));
         list.add(new Module(Permission.MANAGE_FINANCE, FinanceView::new));
+        list.add(new Module(Permission.CONFIGURE_SYSTEM, ActivityView::new));
         list.add(new Module(Permission.CONFIGURE_SYSTEM, SettingsView::new));
         return list;
     }

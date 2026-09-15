@@ -1,6 +1,7 @@
 package bd.ac.kuet.swms.service;
 
 import bd.ac.kuet.swms.db.Database;
+import bd.ac.kuet.swms.model.AuditEntry;
 import bd.ac.kuet.swms.model.FinancialTransaction;
 import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.Product;
@@ -31,6 +32,7 @@ public class WarehouseService implements JobListener {
     private final TransactionRepository transactions;
     private final SalesOrderService orders;
     private final Session session;
+    private final AuditService audit;
     private final Path settingsFile;
     private final FactoryIoController controller;
     private final AtomicInteger pendingBookings = new AtomicInteger();
@@ -39,7 +41,8 @@ public class WarehouseService implements JobListener {
     private AppSettings settings;
 
     public WarehouseService(Database db, RackCellRepository cells, ProductRepository products, StockMovementRepository movements,
-                            TransactionRepository transactions, SalesOrderService orders, Session session, Path settingsFile) {
+                            TransactionRepository transactions, SalesOrderService orders, Session session, AuditService audit, Path settingsFile) {
+        this.audit = audit;
         this.db = db;
         this.cells = cells;
         this.products = products;
@@ -215,5 +218,6 @@ public class WarehouseService implements JobListener {
         newSettings.save(settingsFile);
         settings = newSettings;
         controller.setConfig(newSettings.craneConfig());
+        audit.record(AuditEntry.Category.SYSTEM, "Changed Factory IO settings (" + newSettings.factoryIoHost + ":" + newSettings.factoryIoPort + ")");
     }
 }
