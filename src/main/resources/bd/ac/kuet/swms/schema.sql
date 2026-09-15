@@ -28,6 +28,15 @@ CREATE TABLE IF NOT EXISTS products (
     created_at    TEXT    NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS audit_log (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    username   TEXT    NOT NULL,
+    category   TEXT    NOT NULL,
+    action     TEXT    NOT NULL,
+    created_at TEXT    NOT NULL
+);
+
 -- one row per rack cell (1..54), filled at the bottom
 CREATE TABLE IF NOT EXISTS rack_cells (
     id         INTEGER PRIMARY KEY CHECK (id BETWEEN 1 AND 54),
