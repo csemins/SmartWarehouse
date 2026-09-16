@@ -24,6 +24,10 @@ public class ProductService {
 
     public List<Product> findAll() { return products.findAll(); }
 
+    public List<Product> productsToRestock() {
+        return products.findAll().stream().filter(Product::needsRestock).toList();
+    }
+
     public List<Category> categories() { return categories.findAll(); }
 
     public Product save(Product product, String categoryName) {

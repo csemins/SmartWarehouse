@@ -17,6 +17,7 @@
             <HBox styleClass="header" spacing="12">
                 <Label text="Smart Warehouse" styleClass="header-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="restockAlert" styleClass="restock-alert" visible="false"/>
                 <Label fx:id="userLabel"/>
             </HBox>
         </VBox>

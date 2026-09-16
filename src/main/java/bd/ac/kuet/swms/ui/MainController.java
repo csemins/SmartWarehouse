@@ -28,10 +28,12 @@ import java.util.function.Supplier;
 public class MainController {
     @FXML private TabPane tabs;
     @FXML private Label userLabel, jobStatus;
+    @FXML private Label restockAlert;
 
     private final AppContext ctx = AppContext.get();
     private final List<View> views = new ArrayList<>();
     private final Consumer<Snapshot> plcListener = s -> Platform.runLater(() -> showCraneJob(s));
+    private final Runnable stockListener = () -> Platform.runLater(this::refreshRestockAlert);
 
     private record Module(Permission permission, Supplier<View> create) { }
 
@@ -63,10 +65,19 @@ public class MainController {
         }
         if (!views.isEmpty()) views.get(0).refresh();
         ctx.warehouse.controller().subscribe(plcListener);
+        ctx.warehouse.onChange(stockListener);
+        refreshRestockAlert();
     }
 
     private void showCraneJob(Snapshot s) {
         jobStatus.setText(s.currentJob() == null ? "Crane idle" : "Crane: " + s.currentJob() + "  -  " + s.currentJob().progress());
+    }
+
+    private void refreshRestockAlert() {
+        FxAsync.run(() -> ctx.products.productsToRestock().size(), count -> {
+            restockAlert.setText(count == 0 ? "" : count + " product(s) to restock");
+            restockAlert.setVisible(count > 0);
+        });
     }
 
     @FXML
@@ -94,6 +105,7 @@ public class MainController {
 
     private void close() {
         ctx.warehouse.controller().unsubscribe(plcListener);
+        ctx.warehouse.removeOnChange(stockListener);
         views.forEach(View::dispose);
     }
 }
