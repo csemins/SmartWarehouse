@@ -7,12 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Database {
+    // bump this whenever schema.sql changes, old dbs get rebuilt (v3 only needs image_url)
+    public static final int SCHEMA_VERSION = 4;
 
     private final String url;
 
@@ -65,10 +68,30 @@ public class Database {
 
     private void createSchema() {
         try (Connection c = connect(); Statement st = c.createStatement()) {
+            int version = schemaVersion(st);
+            if (version == 3) st.execute("ALTER TABLE products ADD COLUMN image_url TEXT");
+            else if (version != SCHEMA_VERSION) dropAllTables(st);
             for (String sql : readSchemaStatements()) st.execute(sql);
+            st.execute("PRAGMA user_version = " + SCHEMA_VERSION);
         } catch (IOException | SQLException e) {
             throw new DataAccessException("Could not create database schema: " + e.getMessage(), e);
         }
+    }
+
+    private static int schemaVersion(Statement st) throws SQLException {
+        try (ResultSet rs = st.executeQuery("PRAGMA user_version")) {
+            return rs.getInt(1);
+        }
+    }
+
+    private static void dropAllTables(Statement st) throws SQLException {
+        List<String> tables = new ArrayList<>();
+        try (ResultSet rs = st.executeQuery("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")) {
+            while (rs.next()) tables.add(rs.getString(1));
+        }
+        st.execute("PRAGMA foreign_keys = OFF");
+        for (String t : tables) st.execute("DROP TABLE IF EXISTS \"" + t + "\"");
+        st.execute("PRAGMA foreign_keys = ON");
     }
 
     private static List<String> readSchemaStatements() throws IOException {
