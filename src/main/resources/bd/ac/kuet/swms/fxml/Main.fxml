@@ -9,6 +9,7 @@
         <VBox>
             <MenuBar>
                 <Menu text="File">
+                    <MenuItem text="Export inventory report (JSON)..." onAction="#onExportReport"/>
                     <MenuItem text="Log out" onAction="#onLogout"/>
                     <MenuItem text="Exit" onAction="#onExit"/>
                 </Menu>

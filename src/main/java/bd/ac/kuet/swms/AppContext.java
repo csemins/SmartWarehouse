@@ -16,6 +16,7 @@ import bd.ac.kuet.swms.service.AuditService;
 import bd.ac.kuet.swms.service.AuthService;
 import bd.ac.kuet.swms.service.FinanceService;
 import bd.ac.kuet.swms.service.ProductService;
+import bd.ac.kuet.swms.service.ReportService;
 import bd.ac.kuet.swms.service.SalesOrderService;
 import bd.ac.kuet.swms.service.Session;
 import bd.ac.kuet.swms.service.WarehouseAutomation;
@@ -35,6 +36,7 @@ public final class AppContext {
     public final WarehouseService warehouse;
     public final WarehouseAutomation automation;
     public final FinanceService finance;
+    public final ReportService reports;
     public final ExchangeRateService exchangeRates;
     public final BarcodeLookupService barcodeLookup;
 
@@ -52,6 +54,7 @@ public final class AppContext {
                 new StockMovementRepository(database), transactionRepository, orders, session, audit, dataFolder.resolve("settings.json"));
         automation = new WarehouseAutomation(warehouse, orders, session);
         finance = new FinanceService(transactionRepository, productRepository, session, audit);
+        reports = new ReportService(products, warehouse, finance);
 
         HttpJsonClient http = new HttpJsonClient();
         exchangeRates = new ExchangeRateService(http);

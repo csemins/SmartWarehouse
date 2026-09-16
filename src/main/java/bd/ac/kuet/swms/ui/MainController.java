@@ -17,7 +17,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -65,6 +67,16 @@ public class MainController {
 
     private void showCraneJob(Snapshot s) {
         jobStatus.setText(s.currentJob() == null ? "Crane idle" : "Crane: " + s.currentJob() + "  -  " + s.currentJob().progress());
+    }
+
+    @FXML
+    private void onExportReport() {
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialFileName("inventory-report.json");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON file", "*.json"));
+        File file = chooser.showSaveDialog(Navigator.get().stage());
+        if (file != null) FxAsync.run(() -> { ctx.reports.exportInventoryReport(file.toPath()); return file; },
+                f -> Dialogs.info("Report saved", f.getAbsolutePath()));
     }
 
     @FXML
