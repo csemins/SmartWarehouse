@@ -1,5 +1,6 @@
 package bd.ac.kuet.swms.repository;
 
+import bd.ac.kuet.swms.db.DataAccessException;
 import bd.ac.kuet.swms.db.Database;
 import bd.ac.kuet.swms.model.Product;
 
@@ -7,7 +8,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ProductRepository extends AbstractRepository<Product> {
@@ -70,4 +73,16 @@ public class ProductRepository extends AbstractRepository<Product> {
                 p.getSku(), p.getName(), p.getCategoryId(), p.getCostPrice(), p.getUnitPrice(), p.getUnitsPerBox(), p.getReorderLevel(), p.getImageUrl(), p.getId());
     }
 
+    public Map<String, Double> stockValueByCategory() {
+        String sql = "SELECT COALESCE(c.name, 'Uncategorised') AS category_name, SUM(r.quantity * p.cost_price) AS stock_value "
+                + "FROM rack_cells r JOIN products p ON p.id = r.product_id LEFT JOIN categories c ON c.id = p.category_id "
+                + "WHERE r.status = 'OCCUPIED' GROUP BY category_name ORDER BY stock_value DESC";
+        Map<String, Double> result = new LinkedHashMap<>();
+        try (Connection c = db.connect(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) result.put(rs.getString("category_name"), rs.getDouble("stock_value"));
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+        return result;
+    }
 }

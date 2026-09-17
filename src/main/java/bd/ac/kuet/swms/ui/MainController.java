@@ -5,6 +5,7 @@ import bd.ac.kuet.swms.model.Permission;
 import bd.ac.kuet.swms.model.User;
 import bd.ac.kuet.swms.plc.Snapshot;
 import bd.ac.kuet.swms.ui.view.ActivityView;
+import bd.ac.kuet.swms.ui.view.DashboardView;
 import bd.ac.kuet.swms.ui.view.FinanceView;
 import bd.ac.kuet.swms.ui.view.MovementsView;
 import bd.ac.kuet.swms.ui.view.OrdersView;
@@ -40,6 +41,7 @@ public class MainController {
     // TODO sidebar instead of tabs later, tabs are fine for now
     private static List<Module> modules() {
         List<Module> list = new ArrayList<>();
+        list.add(new Module(Permission.VIEW_DASHBOARD, DashboardView::new));
         list.add(new Module(Permission.OPERATE_WAREHOUSE, WarehouseView::new));
         list.add(new Module(Permission.MANAGE_ORDERS, OrdersView::new));
         list.add(new Module(Permission.MANAGE_PRODUCTS, ProductsView::new));

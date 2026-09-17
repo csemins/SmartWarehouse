@@ -1,5 +1,6 @@
 package bd.ac.kuet.swms.repository;
 
+import bd.ac.kuet.swms.db.DataAccessException;
 import bd.ac.kuet.swms.db.Database;
 import bd.ac.kuet.swms.model.StockMovement;
 
@@ -7,7 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StockMovementRepository extends AbstractRepository<StockMovement> {
     public StockMovementRepository(Database db) { super(db); }
@@ -46,4 +50,23 @@ public class StockMovementRepository extends AbstractRepository<StockMovement> {
         return query(select() + orderBy() + " LIMIT ?", limit);
     }
 
+    // [0] = in, [1] = out. prefill all days so the chart has no gaps
+    public Map<LocalDate, int[]> unitsPerDay(int days) {
+        Map<LocalDate, int[]> result = new LinkedHashMap<>();
+        LocalDate first = LocalDate.now().minusDays(days - 1L);
+        for (int i = 0; i < days; i++) result.put(first.plusDays(i), new int[2]);
+        String sql = "SELECT substr(created_at, 1, 10) AS day, type, SUM(quantity) AS units FROM stock_movements WHERE created_at >= ? GROUP BY day, type";
+        try (Connection c = db.connect(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, first.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int[] inOut = result.get(LocalDate.parse(rs.getString("day")));
+                    if (inOut != null) inOut["IN".equals(rs.getString("type")) ? 0 : 1] = rs.getInt("units");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+        return result;
+    }
 }

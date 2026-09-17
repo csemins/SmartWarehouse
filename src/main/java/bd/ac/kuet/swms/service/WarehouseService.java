@@ -18,7 +18,9 @@ import bd.ac.kuet.swms.repository.TransactionRepository;
 import bd.ac.kuet.swms.util.AppExecutors;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -188,6 +190,8 @@ public class WarehouseService implements JobListener {
     public Optional<RackCell> oldestBoxOf(int productId) { return cells.oldestBoxOf(productId); }
 
     public List<StockMovement> latestMovements(int limit) { return movements.latest(limit); }
+
+    public Map<LocalDate, int[]> unitsPerDay(int days) { return movements.unitsPerDay(days); }
 
     public int freeCells() { return cells.countEmpty(); }
 

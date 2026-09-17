@@ -8,6 +8,7 @@ import bd.ac.kuet.swms.repository.CategoryRepository;
 import bd.ac.kuet.swms.repository.ProductRepository;
 
 import java.util.List;
+import java.util.Map;
 
 public class ProductService {
     private final ProductRepository products;
@@ -50,4 +51,5 @@ public class ProductService {
         audit.record(AuditEntry.Category.PRODUCTS, "Deleted product " + product.getName());
     }
 
+    public Map<String, Double> stockValueByCategory() { return products.stockValueByCategory(); }
 }
