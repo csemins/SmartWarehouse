@@ -18,6 +18,8 @@ public class SmartWarehouseApp extends Application {
     public void init() {
         String folder = getParameters().getNamed().get("data");
         AppContext context = AppContext.start(folder == null ? Database.dataFolder() : Path.of(folder));
+        // connects in the background, the ui doesn't wait for factory io
+        context.warehouse.connectAndStartIfConfigured();
         context.automation.start();
     }
 

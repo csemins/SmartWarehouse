@@ -24,6 +24,8 @@ public class SettingsView extends View {
     private final TextField host = new TextField();
     private final Spinner<Integer> port = new Spinner<>(1, 65535, 502);
     private final Spinner<Integer> slaveId = new Spinner<>(0, 255, 1);
+    private final CheckBox autoConnect = new CheckBox("Connect to Factory IO when the application starts");
+    private final CheckBox autoStart = new CheckBox("Start automatic mode after connecting");
     private final ChoiceBox<Side> loadSide = new ChoiceBox<>(FXCollections.observableArrayList(Side.LEFT, Side.RIGHT));
     private final ChoiceBox<Side> unloadSide = new ChoiceBox<>(FXCollections.observableArrayList(Side.LEFT, Side.RIGHT));
     private final ChoiceBox<Side> rackSide = new ChoiceBox<>(FXCollections.observableArrayList(Side.LEFT, Side.RIGHT));
@@ -50,6 +52,7 @@ public class SettingsView extends View {
         Button disconnect = new Button("Disconnect");
         disconnect.setOnAction(e -> ctx.warehouse.disconnect());
         VBox connection = card("Factory IO connection", grid, new HBox(8, connect, disconnect), connectionState);
+        connection.getChildren().add(2, new VBox(4, autoConnect, autoStart));
 
         GridPane scene = new GridPane();
         scene.setHgap(10);
@@ -75,6 +78,8 @@ public class SettingsView extends View {
         settings.factoryIoHost = host.getText().trim();
         settings.factoryIoPort = port.getValue();
         settings.slaveId = slaveId.getValue();
+        settings.autoConnect = autoConnect.isSelected();
+        settings.autoStart = autoStart.isSelected();
         settings.loadSide = loadSide.getValue();
         settings.unloadSide = unloadSide.getValue();
         settings.rackSide = rackSide.getValue();
@@ -93,6 +98,8 @@ public class SettingsView extends View {
         host.setText(s.factoryIoHost);
         port.getValueFactory().setValue(s.factoryIoPort);
         slaveId.getValueFactory().setValue(s.slaveId);
+        autoConnect.setSelected(s.autoConnect);
+        autoStart.setSelected(s.autoStart);
         loadSide.setValue(s.loadSide);
         unloadSide.setValue(s.unloadSide);
         rackSide.setValue(s.rackSide);

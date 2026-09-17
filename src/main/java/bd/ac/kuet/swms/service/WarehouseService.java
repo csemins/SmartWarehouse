@@ -211,6 +211,12 @@ public class WarehouseService implements JobListener {
         controller.connect(new ModbusTcpDriver(settings.factoryIoHost, settings.factoryIoPort, settings.slaveId), settings.craneConfig());
     }
 
+    public void connectAndStartIfConfigured() {
+        if (!settings.autoConnect) return;
+        connect();
+        if (settings.autoStart) controller.startWhenConnected();
+    }
+
     public void disconnect() { controller.disconnect(); }
 
     public AppSettings settings() { return settings; }

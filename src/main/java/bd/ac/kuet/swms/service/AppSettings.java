@@ -24,6 +24,8 @@ public class AppSettings {
     // factory io conveyor sensors read TRUE when nothing is in front of them (!!)
     public boolean conveyorSensorsInverted = true;
     public int stepTimeoutSeconds = 60;
+    public boolean autoConnect = true;
+    public boolean autoStart = true;
 
     public CraneConfig craneConfig() {
         return new CraneConfig(loadSide, unloadSide, rackSide, 55, conveyorSensorsInverted, stepTimeoutSeconds);
