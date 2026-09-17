@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public class WarehouseView extends View {
     private static final int COLUMNS = 9;
     private static final int ROWS = 6;
+    private static final String FIRST_FREE_CELL = "First free cell";
 
     private final FactoryIoController plc = ctx.warehouse.controller();
     private final Label[] cellLabels = new Label[RackCell.COUNT + 1];
@@ -33,6 +34,7 @@ public class WarehouseView extends View {
     private final Label message = new Label();
     private final Label jobLabel = new Label("No job running");
     private final ComboBox<Product> storeProduct = new ComboBox<>();
+    private final ComboBox<String> targetCell = new ComboBox<>();
     private final CheckBox autoStore = new CheckBox("Store every arriving box automatically");
     private final ComboBox<Product> shipProduct = new ComboBox<>();
     private final ListView<String> eventLog = new ListView<>();
@@ -67,11 +69,14 @@ public class WarehouseView extends View {
         storeProduct.setPromptText("Product in the arriving box");
         Button store = new Button("Store box");
         store.disableProperty().bind(storeProduct.valueProperty().isNull());
-        store.setOnAction(e -> runJobRequest(() -> ctx.warehouse.requestStore(storeProduct.getValue(), null)));
+        targetCell.getItems().add(FIRST_FREE_CELL);
+        targetCell.setValue(FIRST_FREE_CELL);
+        store.setOnAction(e -> runJobRequest(() -> ctx.warehouse.requestStore(storeProduct.getValue(), chosenTargetCell())));
+        targetCell.valueProperty().addListener((o, old, v) -> updateAutoStore());
         autoStore.disableProperty().bind(storeProduct.valueProperty().isNull());
         autoStore.selectedProperty().addListener((o, old, on) -> updateAutoStore());
         storeProduct.valueProperty().addListener((o, old, p) -> updateAutoStore());
-        VBox storeCard = card("Store incoming box", storeProduct, store, autoStore);
+        VBox storeCard = card("Store incoming box", storeProduct, targetCell, store, autoStore);
 
         shipProduct.setPromptText("Product to ship");
         Button ship = new Button("Ship oldest box");
@@ -89,8 +94,13 @@ public class WarehouseView extends View {
         return layout;
     }
 
+    private Integer chosenTargetCell() {
+        String value = targetCell.getValue();
+        return value == null || value.equals(FIRST_FREE_CELL) ? null : Integer.parseInt(value.replace("Cell ", ""));
+    }
+
     private void updateAutoStore() {
-        ctx.automation.setAutoStoreProduct(autoStore.isSelected() ? storeProduct.getValue() : null);
+        ctx.automation.setAutoStore(autoStore.isSelected() ? storeProduct.getValue() : null, chosenTargetCell());
     }
 
     private void runJobRequest(Callable<WarehouseJob> request) {
@@ -111,6 +121,11 @@ public class WarehouseView extends View {
                     label.getStyleClass().add(cell.getStatus() == RackCell.Status.OCCUPIED ? "occupied" : "busy");
                 }
             }
+            String target = targetCell.getValue();
+            List<String> targets = new ArrayList<>(List.of(FIRST_FREE_CELL));
+            cells.stream().filter(c -> c.getStatus() == RackCell.Status.EMPTY).forEach(c -> targets.add("Cell " + c.getId()));
+            targetCell.getItems().setAll(targets);
+            targetCell.setValue(targets.contains(target) ? target : FIRST_FREE_CELL);
             Product current = storeProduct.getValue();
             storeProduct.getItems().setAll(products);
             if (current != null) products.stream().filter(p -> p.getId() == current.getId()).findFirst().ifPresent(storeProduct::setValue);
