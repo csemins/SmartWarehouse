@@ -2,6 +2,7 @@ package bd.ac.kuet.swms.ui.view;
 
 import bd.ac.kuet.swms.model.Category;
 import bd.ac.kuet.swms.model.Product;
+import bd.ac.kuet.swms.model.RackCell;
 import bd.ac.kuet.swms.ui.Dialogs;
 import bd.ac.kuet.swms.ui.FxAsync;
 import bd.ac.kuet.swms.util.Formats;
@@ -16,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 import java.util.List;
 
@@ -29,6 +31,9 @@ public class ProductsView extends TableFormView<Product> {
     private final Spinner<Integer> reorderLevel = new Spinner<>(0, 100_000, 0);
     private final TextField imageUrl = new TextField();
     private final ImageView photo = new ImageView();
+    private final Spinner<Integer> storeBoxes = new Spinner<>(1, RackCell.COUNT, 1);
+    private final Label storeSummary = new Label();
+    private final Runnable changeListener = () -> Platform.runLater(this::refresh);
 
     @Override public String title() { return "Products"; }
 
@@ -77,6 +82,22 @@ public class ProductsView extends TableFormView<Product> {
         imageUrl.textProperty().addListener((o, old, url) -> photo.setImage(url == null || url.isBlank() ? null : new Image(url, 160, 160, true, true, true)));
         addFormRow("Photo URL", imageUrl);
         addFormRow("", photo);
+        sidePanel.getChildren().add(buildStoreCard());
+        ctx.warehouse.onChange(changeListener);
+    }
+
+    private VBox buildStoreCard() {
+        storeBoxes.setEditable(true);
+        storeSummary.getStyleClass().add("hint");
+        Button store = new Button("Store boxes");
+        store.disableProperty().bind(table.getSelectionModel().selectedItemProperty().isNull());
+        store.setOnAction(e -> {
+            Product p = table.getSelectionModel().getSelectedItem();
+            int boxes = storeBoxes.getValue();
+            FxAsync.run(() -> ctx.warehouse.requestStoreBoxes(p, boxes, null),
+                    jobs -> storeSummary.setText(jobs.size() + " box(es) of " + p.getName() + " queued for the crane"));
+        });
+        return card("Put into inventory", new Label("Boxes"), storeBoxes, store, storeSummary);
     }
 
     private void lookUpBarcode() {
@@ -123,6 +144,8 @@ public class ProductsView extends TableFormView<Product> {
     @Override protected void saveItem(Product p) { ctx.products.save(p, category.getEditor().getText()); }
 
     @Override protected void deleteItem(Product p) { ctx.products.delete(p); }
+
+    @Override public void dispose() { ctx.warehouse.removeOnChange(changeListener); }
 
     @Override protected String searchText(Product p) { return p.getSku() + " " + p.getName() + " " + p.getCategoryName(); }
 }

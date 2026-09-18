@@ -19,6 +19,7 @@ import bd.ac.kuet.swms.util.AppExecutors;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,6 +63,18 @@ public class WarehouseService implements JobListener {
     public WarehouseJob requestStore(Product product, Integer targetCell) {
         session.require(Permission.OPERATE_WAREHOUSE);
         return store(product, targetCell, session.username());
+    }
+
+    public List<WarehouseJob> requestStoreBoxes(Product product, int boxes, Integer firstCell) {
+        session.require(Permission.OPERATE_WAREHOUSE);
+        if (product.getId() == 0) throw new BusinessException("Save the product first");
+        if (boxes < 1) throw new BusinessException("Choose at least one box");
+        int free = freeCells();
+        if (boxes > free) throw new BusinessException("Only " + free + " rack cells are free");
+        List<WarehouseJob> jobs = new ArrayList<>();
+        for (int i = 0; i < boxes; i++) jobs.add(store(product, i == 0 ? firstCell : null, session.username()));
+        audit.record(AuditEntry.Category.WAREHOUSE, "Queued " + boxes + " box(es) of " + product.getName() + " for storing");
+        return jobs;
     }
 
     public WarehouseJob requestRetrieve(int cellId) {
@@ -110,6 +123,17 @@ public class WarehouseService implements JobListener {
         controller.enqueue(job);
         notifyChanged();
         return job;
+    }
+
+    public void markCellEmpty(int cellId) {
+        session.require(Permission.CONFIGURE_SYSTEM);
+        RackCell cell = cells.findById(cellId).orElseThrow();
+        if (cell.getStatus() == RackCell.Status.INBOUND || cell.getStatus() == RackCell.Status.OUTBOUND)
+            throw new BusinessException("A crane job is using this cell");
+        cell.empty();
+        cells.save(cell);
+        audit.record(AuditEntry.Category.WAREHOUSE, "Marked cell " + cellId + " as empty");
+        notifyChanged();
     }
 
     @Override
