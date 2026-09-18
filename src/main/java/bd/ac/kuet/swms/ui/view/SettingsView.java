@@ -1,5 +1,6 @@
 package bd.ac.kuet.swms.ui.view;
 
+import bd.ac.kuet.swms.plc.Actuator;
 import bd.ac.kuet.swms.plc.Side;
 import bd.ac.kuet.swms.plc.Snapshot;
 import bd.ac.kuet.swms.service.AppSettings;
@@ -14,6 +15,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -65,6 +68,30 @@ public class SettingsView extends View {
         Button saveScene = new Button("Save scene settings");
         saveScene.setOnAction(e -> saveSettings(false));
         VBox content = new VBox(12, connection, card("Automated Warehouse scene", scene, saveScene));
+
+        FlowPane coilButtons = new FlowPane(6, 6);
+        for (Actuator actuator : Actuator.values()) {
+            ToggleButton toggle = new ToggleButton(actuator.label());
+            toggle.setOnAction(e -> ctx.warehouse.controller().setCoilManually(actuator, toggle.isSelected()));
+            coilButtons.getChildren().add(toggle);
+        }
+        Spinner<Integer> target = new Spinner<>(0, 55, 55);
+        target.setEditable(true);
+        Button move = new Button("Move crane");
+        move.setOnAction(e -> ctx.warehouse.controller().setTargetManually(target.getValue()));
+        content.getChildren().add(card("Manual crane control", hint("Only while connected and stopped (IDLE)."), coilButtons,
+                new HBox(8, new Label("Target (1-54, 55 = rest)"), target, move)));
+
+        Spinner<Integer> cell = new Spinner<>(1, 54, 1);
+        cell.setEditable(true);
+        Button markEmpty = new Button("Mark cell as empty");
+        markEmpty.setOnAction(e -> {
+            int id = cell.getValue();
+            if (Dialogs.confirm("Mark cell " + id + " as empty?"))
+                FxAsync.run(() -> { ctx.warehouse.markCellEmpty(id); return true; }, ok -> Dialogs.info("Done", "Cell " + id + " is empty."));
+        });
+        content.getChildren().add(card("Rack correction", hint("After restarting the Factory IO scene the rack is empty, fix the cells here."),
+                new HBox(8, new Label("Cell"), cell, markEmpty)));
         ctx.warehouse.controller().subscribe(plcListener);
         return scrolling(content);
     }
