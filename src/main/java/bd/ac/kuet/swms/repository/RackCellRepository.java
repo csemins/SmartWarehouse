@@ -59,6 +59,12 @@ public class RackCellRepository extends AbstractRepository<RackCell> {
         return (int) number("SELECT COUNT(*) FROM rack_cells WHERE status = 'EMPTY'");
     }
 
+    // app closed in the middle of a crane job -> put cells back to a sane state
+    public void undoUnfinishedJobs() {
+        execute("UPDATE rack_cells SET status='EMPTY', product_id=NULL, quantity=0 WHERE status='INBOUND'");
+        execute("UPDATE rack_cells SET status='OCCUPIED' WHERE status='OUTBOUND'");
+    }
+
     public List<RackCell> occupied() {
         return query(select() + " WHERE t.status = 'OCCUPIED' ORDER BY t.id");
     }

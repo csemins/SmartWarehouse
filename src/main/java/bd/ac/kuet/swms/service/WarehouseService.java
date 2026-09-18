@@ -56,6 +56,8 @@ public class WarehouseService implements JobListener {
         this.settingsFile = settingsFile;
         this.settings = AppSettings.load(settingsFile);
         this.controller = new FactoryIoController(AppExecutors.scheduler(), this);
+        // leftovers from last run
+        cells.undoUnfinishedJobs();
     }
 
     public FactoryIoController controller() { return controller; }
