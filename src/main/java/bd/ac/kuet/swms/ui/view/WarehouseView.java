@@ -6,6 +6,7 @@ import bd.ac.kuet.swms.plc.FactoryIoController;
 import bd.ac.kuet.swms.plc.Snapshot;
 import bd.ac.kuet.swms.plc.WarehouseJob;
 import bd.ac.kuet.swms.ui.FxAsync;
+import bd.ac.kuet.swms.ui.UiThrottle;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -38,7 +39,7 @@ public class WarehouseView extends View {
     private final CheckBox autoStore = new CheckBox("Store every arriving box automatically");
     private final ComboBox<Product> shipProduct = new ComboBox<>();
     private final ListView<String> eventLog = new ListView<>();
-    private final Consumer<Snapshot> plcListener = s -> Platform.runLater(() -> showSnapshot(s));
+    private final Consumer<Snapshot> plcListener = new UiThrottle<Snapshot>(this::showSnapshot)::submit;
     private final Runnable changeListener = () -> Platform.runLater(this::refresh);
 
     @Override public String title() { return "Warehouse"; }

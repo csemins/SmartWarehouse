@@ -33,7 +33,7 @@ public class MainController {
 
     private final AppContext ctx = AppContext.get();
     private final List<View> views = new ArrayList<>();
-    private final Consumer<Snapshot> plcListener = s -> Platform.runLater(() -> showCraneJob(s));
+    private final Consumer<Snapshot> plcListener = new UiThrottle<Snapshot>(this::showCraneJob)::submit;
     private final Runnable stockListener = () -> Platform.runLater(this::refreshRestockAlert);
 
     private record Module(Permission permission, Supplier<View> create) { }
