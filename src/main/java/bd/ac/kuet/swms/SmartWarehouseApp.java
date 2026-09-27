@@ -24,6 +24,7 @@ public class SmartWarehouseApp extends Application {
         context.warehouse.connectAndStartIfConfigured();
         context.automation.start();
         Theme.loadFonts();
+        Theme.setDark(context.warehouse.settings().darkMode);
     }
 
     @Override

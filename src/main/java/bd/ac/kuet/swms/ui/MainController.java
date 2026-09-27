@@ -91,6 +91,7 @@ public class MainController {
         brandLogo.getChildren().add(Icons.logo(36));
         logoutButton.setGraphic(Icons.icon("logout", 16));
         moreMenu.setGraphic(Icons.icon("more", 18));
+        updateThemeIcon();
 
         for (Module module : MODULES) {
             if (!user.can(module.permission())) continue;
@@ -141,6 +142,7 @@ public class MainController {
             ToggleButton button = buttons.get(i);
             scene.getAccelerators().put(new KeyCodeCombination(digits[i], KeyCombination.SHORTCUT_DOWN), () -> button.setSelected(true));
         }
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN), this::onToggleTheme);
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.F11),
                 () -> Navigator.get().stage().setFullScreen(!Navigator.get().stage().isFullScreen()));
     }
@@ -161,6 +163,16 @@ public class MainController {
                     restockAlert.setManaged(count > 0);
                 });
     }
+
+    @FXML
+    private void onToggleTheme() {
+        Theme.setDark(!Theme.isDark());
+        Theme.apply(root.getScene().getRoot());
+        updateThemeIcon();
+        AppExecutors.workers().submit(() -> ctx.warehouse.saveDarkMode(Theme.isDark()));
+    }
+
+    private void updateThemeIcon() { themeButton.setGraphic(Icons.icon(Theme.isDark() ? "sun" : "moon", 18)); }
 
     @FXML
     private void onExportReport() {

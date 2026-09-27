@@ -237,6 +237,11 @@ public class WarehouseService implements JobListener {
 
     private void announce(String message) { messageListeners.forEach(l -> l.accept(message)); }
 
+    public void saveDarkMode(boolean dark) {
+        settings.darkMode = dark;
+        settings.save(settingsFile);
+    }
+
     public void connect() {
         controller.connect(new ModbusTcpDriver(settings.factoryIoHost, settings.factoryIoPort, settings.slaveId), settings.craneConfig());
     }

@@ -47,6 +47,9 @@
                     </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label fx:id="restockAlert" styleClass="restock-alert" visible="false" managed="false" minWidth="-Infinity"/>
+                    <Button fx:id="themeButton" styleClass="icon-button" onAction="#onToggleTheme">
+                        <tooltip><Tooltip text="Light / dark theme (Ctrl+D)"/></tooltip>
+                    </Button>
                     <MenuButton fx:id="moreMenu" styleClass="icon-button">
                         <items>
                             <MenuItem text="Export inventory report (JSON)..." onAction="#onExportReport"/>
