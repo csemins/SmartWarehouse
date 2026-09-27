@@ -4,6 +4,7 @@ import bd.ac.kuet.swms.model.BaseEntity;
 import bd.ac.kuet.swms.ui.Dialogs;
 import bd.ac.kuet.swms.ui.FxAsync;
 import bd.ac.kuet.swms.ui.TableExport;
+import bd.ac.kuet.swms.ui.Icons;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -62,10 +63,10 @@ public abstract class TableFormView<T extends BaseEntity> extends View {
         search.textProperty().addListener((o, old, text) -> visibleItems.setPredicate(
                 item -> text.isBlank() || searchText(item).toLowerCase().contains(text.toLowerCase())));
         table.setItems(visibleItems);
-        table.setPlaceholder(new Label("No " + itemName() + "s yet"));
+        table.setPlaceholder(emptyState("clipboard", "Nothing here yet", "Click New " + itemName() + " to add the first one."));
         table.getSelectionModel().selectedItemProperty().addListener((o, old, item) -> { if (item != null) edit(item); });
         addColumns();
-        Button export = new Button("Export CSV");
+        Button export = new Button("Export CSV", Icons.icon("download", 14));
         export.setOnAction(e -> TableExport.exportToCsv(table, itemName() + "s.csv"));
         Button newButton = new Button("New " + itemName());
         newButton.getStyleClass().add("primary");

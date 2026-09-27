@@ -50,6 +50,38 @@ public class StockMovementRepository extends AbstractRepository<StockMovement> {
         return query(select() + orderBy() + " LIMIT ?", limit);
     }
 
+    public Map<String, Double> salesPerCategory(int days) {
+        String sql = "SELECT COALESCE(c.name, 'Uncategorised') AS category_name, SUM(m.quantity * p.unit_price) AS sales "
+                + "FROM stock_movements m JOIN products p ON p.id = m.product_id LEFT JOIN categories c ON c.id = p.category_id "
+                + "WHERE m.type = 'OUT' AND m.created_at >= ? GROUP BY category_name ORDER BY sales DESC";
+        Map<String, Double> result = new LinkedHashMap<>();
+        try (Connection c = db.connect(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, LocalDate.now().minusDays(days - 1L).toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) result.put(rs.getString("category_name"), rs.getDouble("sales"));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+        return result;
+    }
+
+    public Map<String, Integer> shippedUnitsPerProduct(int days, int limit) {
+        String sql = "SELECT p.name AS product, SUM(m.quantity) AS units FROM stock_movements m JOIN products p ON p.id = m.product_id "
+                + "WHERE m.type = 'OUT' AND m.created_at >= ? GROUP BY p.id ORDER BY units DESC LIMIT ?";
+        Map<String, Integer> result = new LinkedHashMap<>();
+        try (Connection c = db.connect(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, LocalDate.now().minusDays(days - 1L).toString());
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) result.put(rs.getString("product"), rs.getInt("units"));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+        return result;
+    }
+
     // [0] = in, [1] = out. prefill all days so the chart has no gaps
     public Map<LocalDate, int[]> unitsPerDay(int days) {
         Map<LocalDate, int[]> result = new LinkedHashMap<>();

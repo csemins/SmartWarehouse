@@ -221,6 +221,10 @@ public class WarehouseService implements JobListener {
 
     public int freeCells() { return cells.countEmpty(); }
 
+    public Map<String, Double> salesPerCategory(int days) { return movements.salesPerCategory(days); }
+
+    public Map<String, Integer> shippedUnitsPerProduct(int days, int limit) { return movements.shippedUnitsPerProduct(days, limit); }
+
     public void onChange(Runnable listener) { changeListeners.add(listener); }
 
     public void removeOnChange(Runnable listener) { changeListeners.remove(listener); }

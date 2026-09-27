@@ -1,6 +1,7 @@
 package bd.ac.kuet.swms.ui.view;
 
 import bd.ac.kuet.swms.AppContext;
+import bd.ac.kuet.swms.ui.Icons;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -49,6 +50,15 @@ public abstract class View {
     protected static VBox card(String title, String subtitle, Node... content) {
         VBox box = card(title, content);
         box.getChildren().add(1, hint(subtitle));
+        return box;
+    }
+
+    protected static VBox emptyState(String picture, String title, String text) {
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("empty-title");
+        VBox box = new VBox(6, Icons.picture(picture, 56), titleLabel, hint(text));
+        box.setAlignment(javafx.geometry.Pos.CENTER);
+        box.getStyleClass().add("empty-state");
         return box;
     }
 
