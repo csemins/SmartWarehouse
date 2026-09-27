@@ -2,6 +2,7 @@ package bd.ac.kuet.swms;
 
 import bd.ac.kuet.swms.db.Database;
 import bd.ac.kuet.swms.ui.Navigator;
+import bd.ac.kuet.swms.ui.Theme;
 import bd.ac.kuet.swms.util.AppExecutors;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -21,6 +22,7 @@ public class SmartWarehouseApp extends Application {
         // connects in the background, the ui doesn't wait for factory io
         context.warehouse.connectAndStartIfConfigured();
         context.automation.start();
+        Theme.loadFonts();
     }
 
     @Override
