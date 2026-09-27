@@ -1,33 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="bd.ac.kuet.swms.ui.MainController">
-    <top>
-        <VBox>
-            <MenuBar>
-                <Menu text="File">
-                    <MenuItem text="Export inventory report (JSON)..." onAction="#onExportReport"/>
-                    <MenuItem text="Log out" onAction="#onLogout"/>
-                    <MenuItem text="Exit" onAction="#onExit"/>
-                </Menu>
-            </MenuBar>
-            <HBox styleClass="header" spacing="12">
-                <Label text="Smart Warehouse" styleClass="header-title"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="restockAlert" styleClass="restock-alert" visible="false"/>
-                <Label fx:id="userLabel"/>
+    <left>
+        <VBox styleClass="sidebar">
+            <HBox styleClass="brand">
+                <StackPane fx:id="brandLogo" styleClass="brand-logo"/>
+                <VBox>
+                    <Label text="Smart Warehouse" styleClass="brand-name"/>
+                    <Label text="Management System" styleClass="brand-sub"/>
+                </VBox>
+            </HBox>
+            <Label text="MENU" styleClass="section-label"/>
+            <StackPane alignment="TOP_LEFT">
+                <VBox fx:id="nav" spacing="2"/>
+                <Region fx:id="navIndicator" styleClass="nav-indicator" managed="false" mouseTransparent="true"/>
+            </StackPane>
+            <Region VBox.vgrow="ALWAYS"/>
+            <VBox styleClass="sidebar-tip">
+                <Label text="Quick search" styleClass="tip-title"/>
+                <Label text="Press Ctrl+K to jump to any page, product or order." wrapText="true" styleClass="tip-text"/>
+            </VBox>
+            <HBox styleClass="user-box">
+                <StackPane styleClass="avatar"><Label fx:id="avatar"/></StackPane>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label fx:id="userName" styleClass="user-name"/>
+                    <Label fx:id="userRole" styleClass="user-role"/>
+                </VBox>
+                <Button fx:id="logoutButton" styleClass="icon-button" onAction="#onLogout">
+                    <tooltip><Tooltip text="Log out"/></tooltip>
+                </Button>
             </HBox>
         </VBox>
-    </top>
+    </left>
     <center>
-        <TabPane fx:id="tabs"/>
+        <BorderPane>
+            <top>
+                <HBox styleClass="topbar">
+                    <VBox minWidth="-Infinity">
+                        <Label fx:id="pageTitle" styleClass="page-title"/>
+                        <Label fx:id="pageSubtitle" styleClass="page-subtitle"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="restockAlert" styleClass="restock-alert" visible="false" managed="false" minWidth="-Infinity"/>
+                    <MenuButton fx:id="moreMenu" styleClass="icon-button">
+                        <items>
+                            <MenuItem text="Export inventory report (JSON)..." onAction="#onExportReport"/>
+                            <MenuItem text="Keyboard shortcuts" onAction="#onShortcuts"/>
+                            <MenuItem text="About" onAction="#onAbout"/>
+                            <SeparatorMenuItem/>
+                            <MenuItem text="Log out" onAction="#onLogout"/>
+                            <MenuItem text="Exit" onAction="#onExit"/>
+                        </items>
+                    </MenuButton>
+                </HBox>
+            </top>
+            <center>
+                <StackPane>
+                    <StackPane fx:id="pageHost" id="pageHost" styleClass="content-area"/>
+                </StackPane>
+            </center>
+            <bottom>
+                <HBox styleClass="status-bar">
+                    <Label fx:id="jobStatus" text="Crane idle"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="clock"/>
+                </HBox>
+            </bottom>
+        </BorderPane>
     </center>
-    <bottom>
-        <HBox styleClass="status-bar">
-            <Label fx:id="jobStatus" text="Crane idle"/>
-        </HBox>
-    </bottom>
 </BorderPane>
