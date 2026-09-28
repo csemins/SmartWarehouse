@@ -12,6 +12,7 @@ import bd.ac.kuet.swms.ui.view.FinanceView;
 import bd.ac.kuet.swms.ui.view.MovementsView;
 import bd.ac.kuet.swms.ui.view.OrdersView;
 import bd.ac.kuet.swms.ui.view.ProductsView;
+import bd.ac.kuet.swms.ui.view.ReportsView;
 import bd.ac.kuet.swms.ui.view.SettingsView;
 import bd.ac.kuet.swms.ui.view.TableFormView;
 import bd.ac.kuet.swms.ui.view.View;
@@ -87,6 +88,7 @@ public class MainController {
             new Module(Permission.MANAGE_PRODUCTS, "products", "Catalogue, prices, photos and putting boxes into stock", ProductsView::new),
             new Module(Permission.VIEW_MOVEMENTS, "movements", "Every box that went in or out", MovementsView::new),
             new Module(Permission.MANAGE_FINANCE, "finance", "Income, expenses and live exchange rates", FinanceView::new),
+            new Module(Permission.VIEW_DASHBOARD, "chart-column", "Best sellers, fulfilment and inventory valuation", ReportsView::new),
             new Module(Permission.CONFIGURE_SYSTEM, "history", "Security and change history of every user", ActivityView::new),
             new Module(Permission.CONFIGURE_SYSTEM, "settings", "Factory IO connection and manual control", SettingsView::new));
 
