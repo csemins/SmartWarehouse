@@ -2,6 +2,7 @@ package bd.ac.kuet.swms.ui.view;
 
 import bd.ac.kuet.swms.model.Product;
 import bd.ac.kuet.swms.model.SalesOrder;
+import bd.ac.kuet.swms.ui.Toasts;
 import bd.ac.kuet.swms.ui.FxAsync;
 import bd.ac.kuet.swms.util.Formats;
 import javafx.application.Platform;
@@ -92,6 +93,7 @@ public class OrdersView extends TableFormView<SalesOrder> {
     protected void saveItem(SalesOrder order) {
         SalesOrder saved = ctx.orders.create(order.getCustomer(), product.getValue(), order.getBoxes());
         order.setId(saved.getId());
+        Platform.runLater(() -> Toasts.show("Order #" + saved.getId() + " created, it will be shipped automatically"));
     }
 
     @Override protected void deleteItem(SalesOrder order) { ctx.orders.delete(order); }

@@ -47,6 +47,12 @@
                     </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label fx:id="restockAlert" styleClass="restock-alert" visible="false" managed="false" minWidth="-Infinity"/>
+                    <StackPane>
+                        <Button fx:id="bellButton" styleClass="icon-button" onAction="#onNotifications">
+                            <tooltip><Tooltip text="Notifications"/></tooltip>
+                        </Button>
+                        <Label fx:id="bellBadge" styleClass="bell-badge" StackPane.alignment="TOP_RIGHT" mouseTransparent="true"/>
+                    </StackPane>
                     <Button fx:id="themeButton" styleClass="icon-button" onAction="#onToggleTheme">
                         <tooltip><Tooltip text="Light / dark theme (Ctrl+D)"/></tooltip>
                     </Button>
@@ -65,6 +71,9 @@
             <center>
                 <StackPane>
                     <StackPane fx:id="pageHost" id="pageHost" styleClass="content-area"/>
+                    <VBox fx:id="toastHost" spacing="8" alignment="BOTTOM_RIGHT" pickOnBounds="false" mouseTransparent="true">
+                        <padding><Insets top="16" right="20" bottom="20" left="16"/></padding>
+                    </VBox>
                 </StackPane>
             </center>
             <bottom>

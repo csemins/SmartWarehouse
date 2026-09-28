@@ -20,11 +20,14 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
@@ -65,6 +68,7 @@ public class MainController {
     private final ToggleGroup navGroup = new ToggleGroup();
     private final Consumer<Snapshot> plcListener = new UiThrottle<Snapshot>(this::showCraneJob)::submit;
     private final Runnable stockListener = () -> Platform.runLater(this::refreshRestockAlert);
+    private final Consumer<String> messageListener = message -> Platform.runLater(() -> Toasts.show(message));
     private ScheduledFuture<?> clockTask;
 
     private record Module(Permission permission, String icon, String subtitle, Supplier<View> create) { }
@@ -91,6 +95,9 @@ public class MainController {
         brandLogo.getChildren().add(Icons.logo(36));
         logoutButton.setGraphic(Icons.icon("logout", 16));
         moreMenu.setGraphic(Icons.icon("more", 18));
+        bellButton.setGraphic(Icons.icon("bell", 18));
+        bellBadge.textProperty().bind(Toasts.unread().asString());
+        bellBadge.visibleProperty().bind(Toasts.unread().greaterThan(0));
         updateThemeIcon();
 
         for (Module module : MODULES) {
@@ -109,11 +116,13 @@ public class MainController {
         navIndicator.resize(4, 22);
         ((ToggleButton) nav.getChildren().get(0)).setSelected(true);
 
+        Toasts.attach(toastHost);
         DateTimeFormatter format = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy   HH:mm:ss");
         clockTask = AppExecutors.scheduler().scheduleAtFixedRate(
                 () -> Platform.runLater(() -> clock.setText(format.format(LocalDateTime.now()))), 0, 1, TimeUnit.SECONDS);
         ctx.warehouse.controller().subscribe(plcListener);
         ctx.warehouse.onChange(stockListener);
+        ctx.warehouse.onMessage(messageListener);
         root.sceneProperty().addListener((o, old, scene) -> { if (scene != null) installShortcuts(scene); });
         refreshRestockAlert();
     }
@@ -167,6 +176,24 @@ public class MainController {
     }
 
     @FXML
+    private void onNotifications() {
+        ContextMenu menu = new ContextMenu();
+        if (Toasts.history().isEmpty()) {
+            MenuItem none = new MenuItem("No notifications yet");
+            none.setDisable(true);
+            menu.getItems().add(none);
+        }
+        Toasts.history().stream().limit(12).forEach(text -> menu.getItems().add(new MenuItem(text)));
+        if (!Toasts.history().isEmpty()) {
+            MenuItem clear = new MenuItem("Clear all");
+            clear.setOnAction(e -> Toasts.history().clear());
+            menu.getItems().addAll(new SeparatorMenuItem(), clear);
+        }
+        Toasts.unread().set(0);
+        menu.show(bellButton, Side.BOTTOM, -260, 6);
+    }
+
+    @FXML
     private void onToggleTheme() {
         Theme.setDark(!Theme.isDark());
         Theme.apply(root.getScene().getRoot());
@@ -183,7 +210,7 @@ public class MainController {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON file", "*.json"));
         File file = chooser.showSaveDialog(Navigator.get().stage());
         if (file != null) FxAsync.run(() -> { ctx.reports.exportInventoryReport(file.toPath()); return file; },
-                f -> Dialogs.info("Report saved", f.getAbsolutePath()));
+                f -> Toasts.show("Report saved to " + f.getName()));
     }
 
     @FXML
@@ -220,6 +247,8 @@ public class MainController {
         root.getScene().getAccelerators().clear();
         ctx.warehouse.controller().unsubscribe(plcListener);
         ctx.warehouse.removeOnChange(stockListener);
+        ctx.warehouse.removeOnMessage(messageListener);
+        Toasts.attach(null);
         pages.values().forEach(page -> page.view().dispose());
     }
 }
