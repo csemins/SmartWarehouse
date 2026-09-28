@@ -46,6 +46,7 @@
                         <Label fx:id="pageSubtitle" styleClass="page-subtitle"/>
                     </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="searchButton" styleClass="search-button" onAction="#onSearch" text="Search...   Ctrl+K"/>
                     <Label fx:id="restockAlert" styleClass="restock-alert" visible="false" managed="false" minWidth="-Infinity"/>
                     <StackPane>
                         <Button fx:id="bellButton" styleClass="icon-button" onAction="#onNotifications">

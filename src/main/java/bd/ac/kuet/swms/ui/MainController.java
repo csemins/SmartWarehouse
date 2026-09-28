@@ -2,6 +2,8 @@ package bd.ac.kuet.swms.ui;
 
 import bd.ac.kuet.swms.AppContext;
 import bd.ac.kuet.swms.model.Permission;
+import bd.ac.kuet.swms.model.Product;
+import bd.ac.kuet.swms.model.SalesOrder;
 import bd.ac.kuet.swms.model.User;
 import bd.ac.kuet.swms.plc.Snapshot;
 import bd.ac.kuet.swms.ui.view.ActivityView;
@@ -11,6 +13,7 @@ import bd.ac.kuet.swms.ui.view.MovementsView;
 import bd.ac.kuet.swms.ui.view.OrdersView;
 import bd.ac.kuet.swms.ui.view.ProductsView;
 import bd.ac.kuet.swms.ui.view.SettingsView;
+import bd.ac.kuet.swms.ui.view.TableFormView;
 import bd.ac.kuet.swms.ui.view.View;
 import bd.ac.kuet.swms.ui.view.WarehouseView;
 import bd.ac.kuet.swms.util.AppExecutors;
@@ -70,6 +73,7 @@ public class MainController {
     private final Runnable stockListener = () -> Platform.runLater(this::refreshRestockAlert);
     private final Consumer<String> messageListener = message -> Platform.runLater(() -> Toasts.show(message));
     private ScheduledFuture<?> clockTask;
+    private CommandPalette palette;
 
     private record Module(Permission permission, String icon, String subtitle, Supplier<View> create) { }
 
@@ -96,6 +100,7 @@ public class MainController {
         logoutButton.setGraphic(Icons.icon("logout", 16));
         moreMenu.setGraphic(Icons.icon("more", 18));
         bellButton.setGraphic(Icons.icon("bell", 18));
+        searchButton.setGraphic(Icons.icon("search", 14));
         bellBadge.textProperty().bind(Toasts.unread().asString());
         bellBadge.visibleProperty().bind(Toasts.unread().greaterThan(0));
         updateThemeIcon();
@@ -153,6 +158,7 @@ public class MainController {
             ToggleButton button = buttons.get(i);
             scene.getAccelerators().put(new KeyCodeCombination(digits[i], KeyCombination.SHORTCUT_DOWN), () -> button.setSelected(true));
         }
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), this::onSearch);
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN), this::onToggleTheme);
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.F11),
                 () -> Navigator.get().stage().setFullScreen(!Navigator.get().stage().isFullScreen()));
@@ -173,6 +179,36 @@ public class MainController {
                     restockAlert.setVisible(count > 0);
                     restockAlert.setManaged(count > 0);
                 });
+    }
+
+    @FXML
+    private void onSearch() {
+        if (palette == null) palette = new CommandPalette(Navigator.get().stage(), this::searchEntries);
+        if (!palette.isShowing()) palette.show();
+    }
+
+    private List<CommandPalette.Entry> searchEntries() {
+        List<CommandPalette.Entry> entries = new ArrayList<>();
+        pages.forEach((button, page) -> entries.add(new CommandPalette.Entry(page.view().title(), page.subtitle(), page.icon(),
+                () -> button.setSelected(true))));
+        ToggleButton productsButton = buttonFor(ProductsView.class);
+        if (productsButton != null) for (Product p : ctx.products.findAll())
+            entries.add(new CommandPalette.Entry(p.getName(), "Product  ·  " + p.getSku() + "  ·  " + p.getQuantity() + " units", "products",
+                    () -> openAndSearch(productsButton, p.getSku())));
+        ToggleButton ordersButton = buttonFor(OrdersView.class);
+        if (ordersButton != null) for (SalesOrder o : ctx.orders.findAll())
+            entries.add(new CommandPalette.Entry("Order #" + o.getId() + "  " + o.getCustomer(), "Order  ·  " + o.getProductName() + "  ·  " + o.getStatus(), "orders",
+                    () -> openAndSearch(ordersButton, o.getCustomer())));
+        return entries;
+    }
+
+    private ToggleButton buttonFor(Class<? extends View> type) {
+        return pages.entrySet().stream().filter(e -> type.isInstance(e.getValue().view())).map(Map.Entry::getKey).findFirst().orElse(null);
+    }
+
+    private void openAndSearch(ToggleButton button, String text) {
+        button.setSelected(true);
+        if (pages.get(button).view() instanceof TableFormView<?> table) table.search(text);
     }
 
     @FXML
