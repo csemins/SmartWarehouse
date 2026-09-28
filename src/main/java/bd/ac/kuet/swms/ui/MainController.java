@@ -123,6 +123,8 @@ public class MainController {
         pageTitle.setText(page.view().title());
         pageSubtitle.setText(page.subtitle());
         pageHost.getChildren().setAll(page.view().root());
+        Motion.enter(page.view().root(), 0, 10);
+        Motion.staggerCards(page.view().root());
         page.view().refresh();
         Platform.runLater(() -> moveIndicator(button));
     }
