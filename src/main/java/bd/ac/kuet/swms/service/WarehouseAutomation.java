@@ -70,6 +70,8 @@ public class WarehouseAutomation {
             }
         } catch (RuntimeException e) {
             lastMessage = "Automation paused: " + e.getMessage();
+            // stop auto store on error, otherwise it spams the same exception
+            autoStoreProduct = null;
         }
     }
 
