@@ -101,9 +101,11 @@ public abstract class TableFormView<T extends BaseEntity> extends View {
         formCard.getStyleClass().add("card");
         sidePanel.getChildren().add(0, formCard);
         ScrollPane side = scrolling(sidePanel);
+        side.setMinWidth(320);
         HBox layout = new HBox(16, left, side);
         HBox.setHgrow(left, Priority.ALWAYS);
-        side.setPrefWidth(380);
+        side.setPrefWidth(360);
+        side.setMaxWidth(440);
         edit(null);
         return layout;
     }

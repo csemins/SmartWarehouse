@@ -62,9 +62,11 @@ public abstract class View {
         return box;
     }
 
+    // scrollbar ALWAYS on, otherwise the layout jumps when it appears
     protected static ScrollPane scrolling(Node content) {
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -93,7 +95,10 @@ public abstract class View {
     protected static <S, V> TableColumn<S, V> addColumn(TableView<S> table, String title, Function<S, V> value, double widthShare) {
         TableColumn<S, V> column = new TableColumn<>(title);
         column.setCellValueFactory(cell -> new SimpleObjectProperty<>(value.apply(cell.getValue())));
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setMinWidth(0);
+        table.setPrefWidth(200);
+        // widthShare -> pref width, constrained policy spreads the rest
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         column.setPrefWidth(Math.round(widthShare * 1000));
         column.setMinWidth(36);
         table.getColumns().add(column);
