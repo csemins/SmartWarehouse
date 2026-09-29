@@ -26,6 +26,7 @@ public class AppSettings {
     public int stepTimeoutSeconds = 60;
     public boolean autoConnect = true;
     public boolean autoStart = true;
+    public boolean darkMode = false;
 
     public CraneConfig craneConfig() {
         return new CraneConfig(loadSide, unloadSide, rackSide, 55, conveyorSensorsInverted, stepTimeoutSeconds);

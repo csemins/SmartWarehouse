@@ -27,6 +27,7 @@ public final class Navigator {
 
     public void showMain() { show("Main.fxml", 1280, 800); }
 
+    // reuse one scene, just swap the root (no flicker between login and main)
     private void show(String fxml, double width, double height) {
         Parent root;
         try {
@@ -43,6 +44,7 @@ public final class Navigator {
                 stage.setHeight(height);
             }
         }
+        Theme.apply(root);
         stage.getScene().getStylesheets().setAll(Navigator.class.getResource("/bd/ac/kuet/swms/css/app.css").toExternalForm());
         stage.centerOnScreen();
     }

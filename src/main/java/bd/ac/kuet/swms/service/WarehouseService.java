@@ -221,6 +221,10 @@ public class WarehouseService implements JobListener {
 
     public int freeCells() { return cells.countEmpty(); }
 
+    public Map<String, Double> salesPerCategory(int days) { return movements.salesPerCategory(days); }
+
+    public Map<String, Integer> shippedUnitsPerProduct(int days, int limit) { return movements.shippedUnitsPerProduct(days, limit); }
+
     public void onChange(Runnable listener) { changeListeners.add(listener); }
 
     public void removeOnChange(Runnable listener) { changeListeners.remove(listener); }
@@ -232,6 +236,11 @@ public class WarehouseService implements JobListener {
     public void removeOnMessage(Consumer<String> listener) { messageListeners.remove(listener); }
 
     private void announce(String message) { messageListeners.forEach(l -> l.accept(message)); }
+
+    public void saveDarkMode(boolean dark) {
+        settings.darkMode = dark;
+        settings.save(settingsFile);
+    }
 
     public void connect() {
         controller.connect(new ModbusTcpDriver(settings.factoryIoHost, settings.factoryIoPort, settings.slaveId), settings.craneConfig());

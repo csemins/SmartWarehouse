@@ -7,6 +7,7 @@ import bd.ac.kuet.swms.model.SalesOrder;
 import bd.ac.kuet.swms.repository.SalesOrderRepository;
 
 import java.util.List;
+import java.util.Map;
 
 public class SalesOrderService {
     private final SalesOrderRepository orders;
@@ -22,6 +23,8 @@ public class SalesOrderService {
     public List<SalesOrder> findAll() { return orders.findAll(); }
 
     public List<SalesOrder> openOrders() { return orders.openOrders(); }
+
+    public Map<SalesOrder.Status, Integer> countByStatus() { return orders.countByStatus(); }
 
     public SalesOrder create(String customer, Product product, int boxes) {
         session.require(Permission.MANAGE_ORDERS);

@@ -7,7 +7,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public class SalesOrderRepository extends AbstractRepository<SalesOrder> {
     public SalesOrderRepository(Database db) { super(db); }
@@ -46,6 +48,13 @@ public class SalesOrderRepository extends AbstractRepository<SalesOrder> {
     protected PreparedStatement update(Connection c, SalesOrder o) throws SQLException {
         return prepare(c, "UPDATE sales_orders SET customer=?, product_id=?, boxes=?, boxes_shipped=?, status=? WHERE id=?",
                 o.getCustomer(), o.getProductId(), o.getBoxes(), o.getBoxesShipped(), o.getStatus(), o.getId());
+    }
+
+    public Map<SalesOrder.Status, Integer> countByStatus() {
+        Map<SalesOrder.Status, Integer> counts = new EnumMap<>(SalesOrder.Status.class);
+        for (SalesOrder.Status status : SalesOrder.Status.values())
+            counts.put(status, (int) number("SELECT COUNT(*) FROM sales_orders WHERE status = ?", status));
+        return counts;
     }
 
     public List<SalesOrder> openOrders() {

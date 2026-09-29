@@ -38,7 +38,7 @@ public class MovementsView extends View {
         filter.selectedToggleProperty().addListener((o, old, t) -> visible.setPredicate(
                 m -> t == all || (t == in) == (m.getType() == StockMovement.Type.IN)));
         table.setItems(visible);
-        table.setPlaceholder(new Label("No movements yet"));
+        table.setPlaceholder(emptyState("truck", "No movements yet", "Every stored or shipped box is recorded here."));
         addColumn(table, "Time", m -> Formats.dateTime(m.getCreatedAt()), 0.17);
         showAsBadge(addColumn(table, "Type", StockMovement::getType, 0.07),
                 type -> type == StockMovement.Type.IN ? "badge-success" : "badge-warning");

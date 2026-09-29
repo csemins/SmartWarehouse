@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<StackPane fx:id="root" styleClass="login-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="bd.ac.kuet.swms.ui.LoginController">
-    <VBox fx:id="form" spacing="10" maxWidth="360" maxHeight="-Infinity" styleClass="login-box">
-        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-        <Label text="Smart Warehouse" styleClass="login-title"/>
-        <Label text="Please sign in"/>
-        <Label text="Username"/>
-        <TextField fx:id="username"/>
-        <Label text="Password"/>
-        <PasswordField fx:id="password"/>
-        <Label fx:id="error" styleClass="error-text" wrapText="true"/>
-        <Button fx:id="signIn" text="Sign in" defaultButton="true" onAction="#onSignIn" maxWidth="Infinity"/>
+    <Region styleClass="login-shade"/>
+    <VBox fx:id="form" styleClass="login-card" maxHeight="-Infinity">
+        <StackPane fx:id="logo" styleClass="brand-logo" maxWidth="-Infinity" alignment="CENTER"/>
+        <VBox spacing="4">
+            <Label fx:id="title" text="Welcome back" styleClass="login-title" wrapText="true"/>
+            <Label text="Sign in to Smart Warehouse" styleClass="hint" wrapText="true"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Username" styleClass="field-label"/>
+            <TextField fx:id="username" promptText="Enter your username"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Password" styleClass="field-label"/>
+            <StackPane>
+                <PasswordField fx:id="password" promptText="Enter your password"/>
+                <TextField fx:id="passwordText" visible="false"/>
+            </StackPane>
+        </VBox>
+        <CheckBox fx:id="showPassword" text="Show password"/>
+        <Label fx:id="error" wrapText="true" styleClass="error-text" managed="false"/>
+        <StackPane>
+            <Button fx:id="signIn" text="Sign in" styleClass="primary" defaultButton="true" onAction="#onSignIn" maxWidth="Infinity"/>
+            <ProgressIndicator fx:id="busy" visible="false" prefWidth="20" prefHeight="20" StackPane.alignment="CENTER_RIGHT"/>
+        </StackPane>
+        <Label text="Accounts are managed by the administrator." styleClass="hint" wrapText="true"/>
     </VBox>
 </StackPane>

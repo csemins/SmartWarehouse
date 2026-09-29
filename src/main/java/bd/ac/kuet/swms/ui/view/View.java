@@ -1,6 +1,7 @@
 package bd.ac.kuet.swms.ui.view;
 
 import bd.ac.kuet.swms.AppContext;
+import bd.ac.kuet.swms.ui.Icons;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -52,9 +53,20 @@ public abstract class View {
         return box;
     }
 
+    protected static VBox emptyState(String picture, String title, String text) {
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("empty-title");
+        VBox box = new VBox(6, Icons.picture(picture, 56), titleLabel, hint(text));
+        box.setAlignment(javafx.geometry.Pos.CENTER);
+        box.getStyleClass().add("empty-state");
+        return box;
+    }
+
+    // scrollbar ALWAYS on, otherwise the layout jumps when it appears
     protected static ScrollPane scrolling(Node content) {
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -83,7 +95,10 @@ public abstract class View {
     protected static <S, V> TableColumn<S, V> addColumn(TableView<S> table, String title, Function<S, V> value, double widthShare) {
         TableColumn<S, V> column = new TableColumn<>(title);
         column.setCellValueFactory(cell -> new SimpleObjectProperty<>(value.apply(cell.getValue())));
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setMinWidth(0);
+        table.setPrefWidth(200);
+        // widthShare -> pref width, constrained policy spreads the rest
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         column.setPrefWidth(Math.round(widthShare * 1000));
         column.setMinWidth(36);
         table.getColumns().add(column);

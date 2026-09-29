@@ -2,8 +2,10 @@ package bd.ac.kuet.swms;
 
 import bd.ac.kuet.swms.db.Database;
 import bd.ac.kuet.swms.ui.Navigator;
+import bd.ac.kuet.swms.ui.Theme;
 import bd.ac.kuet.swms.util.AppExecutors;
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
@@ -21,11 +23,15 @@ public class SmartWarehouseApp extends Application {
         // connects in the background, the ui doesn't wait for factory io
         context.warehouse.connectAndStartIfConfigured();
         context.automation.start();
+        Theme.loadFonts();
+        Theme.setDark(context.warehouse.settings().darkMode);
     }
 
     @Override
     public void start(Stage stage) {
         stage.setTitle("Smart Warehouse Management System");
+        var icon = getClass().getResourceAsStream("/bd/ac/kuet/swms/img/icon.png");
+        if (icon != null) stage.getIcons().add(new Image(icon));
         stage.setMinWidth(900);
         stage.setMinHeight(620);
         Navigator.init(stage).showLogin();
