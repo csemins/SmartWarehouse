@@ -7,15 +7,70 @@ is driven directly over **Modbus TCP**.
 
 Stock only changes when the crane has actually moved a box, and every movement creates the matching finance entry.
 
-![Dashboard](docs/screenshots/dashboard.png)
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Smart Warehouse dashboard" width="100%">
+</p>
 
-| Login | Products with photos from the barcode lookup |
+<p align="center">
+  <img alt="Java 17" src="https://img.shields.io/badge/Java-17-orange">
+  <img alt="JavaFX 21" src="https://img.shields.io/badge/JavaFX-21-blue">
+  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-3-003B57">
+  <img alt="Modbus TCP" src="https://img.shields.io/badge/Modbus-TCP-green">
+  <img alt="Factory IO" src="https://img.shields.io/badge/Factory%20IO-Automated%20Warehouse-yellow">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-lightgrey">
+</p>
+
+## Contents
+
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Automations](#automations)
+- [Run](#run)
+- [Users](#users)
+- [Factory IO](#factory-io)
+- [Lab topics in the code](#lab-topics-in-the-code)
+
+## Screenshots
+
+### Sign in
+
+<p align="center"><img src="docs/screenshots/login.png" alt="Login" width="85%"></p>
+
+### Dashboard (light and dark)
+
+| Light | Dark |
 |---|---|
-| ![Login](docs/screenshots/login.png) | ![Products](docs/screenshots/products.png) |
-| **Reports** | **Audit log** |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png) |
+
+### Warehouse: 54-cell rack, crane jobs and live Modbus I/O
+
+| Light | Dark |
+|---|---|
+| ![Warehouse](docs/screenshots/warehouse.png) | ![Warehouse dark](docs/screenshots/warehouse-dark.png) |
+
+### Products and inventory
+
+| Products with photos from the barcode lookup | Put into inventory (boxes queued for the crane) |
+|---|---|
+| ![Products](docs/screenshots/products.png) | ![Put into inventory](docs/screenshots/put-into-inventory.png) |
+
+### Orders and finance
+
+| Orders shipped automatically (FIFO) | Finance with live exchange rates |
+|---|---|
+| ![Orders](docs/screenshots/orders.png) | ![Finance](docs/screenshots/finance.png) |
+
+### Reports and audit log
+
+| Best sellers, fulfilment and inventory valuation | Audit log with filter chips |
+|---|---|
 | ![Reports](docs/screenshots/reports.png) | ![Audit log](docs/screenshots/audit-log.png) |
-| **Warehouse (dark mode)** | **Ctrl+K search** |
-| ![Warehouse dark](docs/screenshots/warehouse-dark.png) | ![Search](docs/screenshots/search.png) |
+
+### Settings and quick search
+
+| Factory IO connection and manual crane control | Ctrl+K search window |
+|---|---|
+| ![Settings](docs/screenshots/settings.png) | <p align="center"><img src="docs/screenshots/search.png" alt="Ctrl+K search" width="80%"></p> |
 
 ## Features
 
