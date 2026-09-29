@@ -72,6 +72,12 @@ Stock only changes when the crane has actually moved a box, and every movement c
 |---|---|
 | ![Settings](docs/screenshots/settings.png) | <p align="center"><img src="docs/screenshots/search.png" alt="Ctrl+K search" width="80%"></p> |
 
+### Factory IO: Automated Warehouse scene (driven over Modbus TCP)
+
+| 54-cell rack | Stacker crane, entry and load conveyors |
+|---|---|
+| ![Factory IO rack](docs/screenshots/factory-io-rack.png) | ![Factory IO crane and conveyors](docs/screenshots/factory-io-crane.png) |
+
 ## Features
 
 - **Dashboard**: greeting banner, animated KPI cards, rack capacity, stock value per category, boxes in/out per day, recent activity and restock list.
