@@ -247,7 +247,7 @@
 .rack-cell.occupied .cell-product { -fx-text-fill: -c-success; }
 .rack-cell.busy .cell-product { -fx-text-fill: -c-warning; }
 
-.login-root { -fx-background-color: linear-gradient(to bottom right, #1e1b4b, #0f172a); }
+.login-root { -fx-background-color: #0f172a; -fx-background-image: url("../img/login-bg.jpg"); -fx-background-size: cover; -fx-background-position: center; }
 .login-card { -fx-background-color: -c-surface; -fx-background-radius: 16; -fx-padding: 36; -fx-spacing: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 40, 0, 0, 12); }
 .login-title { -fx-font-size: 24px; -fx-font-weight: 700; }
 .field-label { -fx-text-fill: -c-muted; -fx-font-size: 12px; -fx-font-weight: 600; }
